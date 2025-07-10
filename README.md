@@ -284,6 +284,12 @@ The package's behavior can be configured through a call to the `AccountsHub.conf
 
 Known configuration options are:
 
+- `autoUsers`
+
+    Whether to automatically instanciates a `ahClass` instance for the standard `users` collection, defaulting to `true`.
+
+    When `true` (the default), then the `ahClass` will be instanciated at startup time.
+
 - `verbosity`
 
     The verbosity level as:

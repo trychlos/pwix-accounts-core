@@ -372,6 +372,7 @@ export class ahClass {
         _trace( 'ahClass.ahClass()', arguments );
         this.#args = args;
         this.#opts = new ahOptions( args );
+        //console.debug( 'pwix:accounts-hub instanciating', this.name(), args );
 
         // if the name is already instanciated, then just return it
         if( AccountsHub.instances[this.name()] ){

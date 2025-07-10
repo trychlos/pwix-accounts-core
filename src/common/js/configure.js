@@ -10,6 +10,7 @@ let _conf = {};
 AccountsHub._conf = new ReactiveVar( _conf );
 
 AccountsHub._defaults = {
+    autoUsers: true,
     verbosity: AccountsHub.C.Verbose.CONFIGURE
 };
 

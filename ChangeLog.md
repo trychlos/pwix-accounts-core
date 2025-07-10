@@ -2,11 +2,11 @@
 
 ## ChangeLog
 
-### 1.2.1-rc
+### 1.3.0-rc
 
     Release date: 
 
-    - 
+    - Define new 'autoUsers' configuration parameter to define or not a default 'users' instance, thus bumping minor candidate version number
 
 ### 1.2.0
 
