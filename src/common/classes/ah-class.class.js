@@ -375,9 +375,10 @@ export class ahClass {
         //console.debug( 'pwix:accounts-hub instanciating', this.name(), args );
 
         // if the name is already instanciated, then just return it
-        if( AccountsHub.instances[this.name()] ){
+        const instance = AccountsHub.getInstance( this.name());
+        if( instance ){
             console.debug( 'pwix:accounts-hub returning already instanciated ahInstance', this.name());
-            return AccountsHub.instances[this.name()];
+            return instance;
         }
 
         if( AccountsHub.configure().verbosity & AccountsHub.C.Verbose.INSTANCE ){
@@ -396,7 +397,7 @@ export class ahClass {
         this._deny();
 
         // register this new instance
-        AccountsHub.instances[this.name()] = this;
+        AccountsHub.getInstance( this.name(), this );
         return this;
     }
 

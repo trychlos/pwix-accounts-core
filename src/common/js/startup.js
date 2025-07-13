@@ -4,7 +4,7 @@
 
 // at startup, instanciates a default ahClass instance for the standard 'users' collection
 Meteor.startup(() => {
-    if( AccountsHub.configure().autoUsers && !AccountsHub.instances.users ){
+    if( AccountsHub.configure().autoUsers && !AccountsHub.getInstance( 'users' )){
         new AccountsHub.ahClass({ name: 'users' });
     }
 });

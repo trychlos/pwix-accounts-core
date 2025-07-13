@@ -18,7 +18,7 @@ AccountsHub.s = {
      * @returns {Object} item
      */
     addUndef( instanceName, item ){
-        const ahInstance = AccountsHub.instances[instanceName];
+        const ahInstance = AccountsHub.getInstance( instanceName );
         if( ahInstance.fieldSet && typeof ahInstance.fieldSet === 'function' ){
             ahInstance.fieldSet().names().forEach(( it ) => {
                 if( it.indexOf( '.' ) === -1 && !Object.keys( item ).includes( it )){
@@ -46,7 +46,7 @@ AccountsHub.s = {
         assert( email && _.isString( email ), 'expects email be a string, got '+email );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
         let result = null;
-        const ahInstance = AccountsHub.instances[instanceName];
+        const ahInstance = AccountsHub.getInstance( instanceName );
         if( ahInstance ){
             assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
             let docs = null;
@@ -80,7 +80,7 @@ AccountsHub.s = {
         assert( id && _.isString( id ), 'expects id be a string, got '+id );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
         let doc = null;
-        const ahInstance = AccountsHub.instances[instanceName];
+        const ahInstance = AccountsHub.getInstance( instanceName );
         if( ahInstance ){
             assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
             const collection = ahInstance.collection();
@@ -111,7 +111,7 @@ AccountsHub.s = {
         assert( username && _.isString( username ), 'expects email be a string, got '+username );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
         let result = null;
-        const ahInstance = AccountsHub.instances[instanceName];
+        const ahInstance = AccountsHub.getInstance( instanceName );
         if( ahInstance ){
             assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
             let docs = null;

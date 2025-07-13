@@ -3,5 +3,4 @@
  */
 
 AccountsHub = {
-    instances: {}
 };

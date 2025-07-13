@@ -50,7 +50,7 @@ Template.ah_select_dialog.onCreated( function(){
     // subscribe to the accounts collection
     self.autorun(() => {
         const name = Template.currentData().instance || 'users';
-        const ahInstance = AccountsHub.instances[name];
+        const ahInstance = AccountsHub.getInstance( name );
         if( ahInstance ){
             self.AH.handle.set( self.subscribe( 'pwix_accounts_hub_list_all', name ));
         } else {
@@ -63,7 +63,7 @@ Template.ah_select_dialog.onCreated( function(){
         const handle = self.AH.handle.get();
         if( handle && handle.ready()){
             const name = Template.currentData().instance || 'users';
-            const ahInstance = AccountsHub.instances[name];
+            const ahInstance = AccountsHub.getInstance( name );
             if( ahInstance ){
                 const cmp = function( a, b ){
                     return a.DYN.preferredLabel.label > b.DYN.preferredLabel.label ? 1 : ( a.DYN.preferredLabel.label < b.DYN.preferredLabel.label ? -1 : 0 );

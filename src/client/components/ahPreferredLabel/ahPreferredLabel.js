@@ -34,7 +34,7 @@ Template.ahPreferredLabel.onCreated( function(){
             if( userId ){
                 const name = Template.currentData().ahName || AccountsHub.ahOptions._defaults.name;
                 if( name ){
-                    const ahInstance = AccountsHub.instances[name];
+                    const ahInstance = AccountsHub.getInstance( name );
                     assert( ahInstance && ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
                     ahInstance.preferredLabel( userId ).then(( res ) => {
                         self.APP.preferredLabel.set( res.label );

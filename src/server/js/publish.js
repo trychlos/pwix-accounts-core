@@ -4,7 +4,7 @@
 
 // returns a cursor of all accounts in the named collection
 Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
-    const ahInstance = AccountsHub.instances[instanceName];
+    const ahInstance = AccountsHub.getInstance( instanceName );
     const self = this;
     //console.debug( 'subscribing to', instanceName );
 
