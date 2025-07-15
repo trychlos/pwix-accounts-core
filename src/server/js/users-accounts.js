@@ -10,7 +10,7 @@ import { Random } from 'meteor/random';
 
 _fns = [];
 
-// Server-side: this is a pre-create user on Meteor.users standard collection, though an _id is already defined
+// Server-side: this is a pre-create user on Meteor.users standard collection, though a temmporary _id is defined
 const _onCreateUser = function( opts, user ){
     //console.log( 'AccountsHub.onCreateUser: opts=%o, user=%o', opts, user );
     // make sure each email has its own identifier (required by Blaze)
@@ -42,6 +42,13 @@ AccountsHub.onCreateUser = function( f ){
 };
 
 AccountsHub.onCreateUser( _onCreateUser );
+
+// track the account creation
+Accounts.validateNewUser(( user ) => {
+    console.log( 'Accounts.validateNewUser: user=%o', user );
+    // Return true to allow user creation to proceed
+    return true;
+});
 
 /*
 // Server-side: validating the new user creation in Accounts collection

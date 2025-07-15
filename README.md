@@ -152,6 +152,8 @@ The class constructor is called with an object as argument, with following keys:
 
         Defaults to `true`.
 
+        Please note that sending a verification email updates the Accounts collection, thus automatically set up `updatedAt`, `updatedBy` fields. If you ask where these updates come from, this is the first answer.
+
     - `serverAllExtend`
 
         A server-side function which comes to extend the content of the dataset published for the whole list.

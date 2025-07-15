@@ -8,6 +8,7 @@
 
     - Define new 'autoUsers' configuration parameter to define or not a default 'users' instance, thus bumping minor candidate version number
     - Define new AccountsHub.getInstance() reactive data source
+    - Update README, explaining where first update comes from
 
 ### 1.2.0
 
