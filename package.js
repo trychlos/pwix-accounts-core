@@ -1,6 +1,6 @@
 Package.describe({
     name: 'pwix:accounts-hub',
-    version: '1.3.0-rc',
+    version: '1.3.0',
     summary: 'Accounts management hub for Meteor',
     git: 'https://github.com/trychlos/pwix-accounts-hub',
     documentation: 'README.md'

@@ -2,9 +2,9 @@
 
 ## ChangeLog
 
-### 1.3.0-rc
+### 1.3.0
 
-    Release date: 
+    Release date: 2026- 2- 9
 
     - Define new 'autoUsers' configuration parameter to define or not a default 'users' instance, thus bumping minor candidate version number
     - Define new AccountsHub.getInstance() reactive data source
@@ -34,4 +34,4 @@
 
 ---
 P. Wieser
-- Last updated on 2025, Jul. 8th
+- Last updated on 2026, Feb. 9th
