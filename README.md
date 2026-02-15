@@ -2,17 +2,17 @@
 
 ## What is it ?
 
-Configurations, functions and tools oth used by `pwix:accounts-ui` and `pwix:accounts-manager`, gathered here to help the accounts management.
+Configurations, functions and tools both used by `pwix:accounts-ui` and `pwix:accounts-manager`, gathered here to help the accounts management.
 
-_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createUser will fail". We so consider in this package first, and more globally in our applications, that both the email address and the username can be used as a user account identifier.
+_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createUser will fail". We so consider in this package first, and more globally in our applications, that both the email address and the username can be used as a - case insensitive - user account identifier.
 
-`pwix:accounts-hub` let the caller manager several instance of accounts collections, each of them being stored in distinct storages, configured in distinct ways.
+`pwix:accounts-hub` let the caller manage several instance of accounts collections, each of them being stored in distinct storages, and configured in distinct ways.
 
 ## Rationale
 
 Most of the time, an application manages a single accounts collection, and Meteor defines for this usage a standard `users` collection. Standard packages, as `accounts-base`, `accounts-password`, and so on, act on this standard collection.
 
-But you may have the case where the application not only needs this standard collection, but also wants manage other accounts entities. See for example anything which would look like an identity manager for example.
+But you may have the case where the application not only needs this standard collection, but also wants manage other accounts entities. See for example anything which would look like an identity manager, or a multi-tenants application which would store each accounts of a tenant in its own collection.
 
 Mutualizing most of the needed tools and configurations requires so that each of these accounts entities may be configured, and managed separately. This is the goal of this package.
 

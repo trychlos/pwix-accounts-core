@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - Improve configure() warns when a key doesn't exist
 
 ### 1.3.0
 

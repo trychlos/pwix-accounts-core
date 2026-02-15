@@ -23,20 +23,20 @@ AccountsHub._defaults = {
 AccountsHub.configure = function( o ){
     if( o && _.isObject( o )){
         // check that keys exist
-        let notexist = [];
+        let built_conf = {};
         Object.keys( o ).forEach(( it ) => {
-            if( !Object.keys( AccountsHub._defaults ).includes( it )){
-                notexist.push( it );
+            if( Object.keys( AccountsHub._defaults ).includes( it )){
+                built_conf[it] = o[it];
+            } else {
+                console.warn( 'pwix:accounts-hub configure() ignore unmanaged key \''+it+'\'' );
             }
         });
-        if( notexist.length ){
-            console.warn( 'pwix:accounts-hub ignoring (re)configuration due to not existing keys', notexist );
-        } else {
-            _conf = _.merge( AccountsHub._defaults, _conf, o );
+        if( Object.keys( built_conf ).length ){
+            _conf = _.merge( AccountsHub._defaults, _conf, built_conf );
             AccountsHub._conf.set( _conf );
             // be verbose if asked for
             if( _conf.verbosity & AccountsHub.C.Verbose.CONFIGURE ){
-                console.log( 'pwix:accounts-hub configure() with', o );
+                console.log( 'pwix:accounts-hub configure() with', built_conf );
             }
         }
     }
