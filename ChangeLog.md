@@ -7,6 +7,7 @@
     Release date: 
 
     - Improve configure() warns when a key doesn't exist
+    - Improve installation instructions
 
 ### 1.3.0
 

@@ -30,6 +30,7 @@ This Meteor package is installable with the usual command:
 
 ```sh
     meteor add pwix:accounts-hub
+    meteor npm install email-validator lodash multiple-select zxcvbn --save
 ```
 
 ## Usage
@@ -50,7 +51,7 @@ This class is expected to be instanciated once by the application for each of th
 
 ###### Methods
 
-- `ahClass( args<Object> )`
+- `ahClass( args<Object> ): ahClass`
 
 The class constructor is called with an object as argument, with following keys:
 
@@ -174,7 +175,7 @@ The class constructor is called with an object as argument, with following keys:
 
         The name of the underlying Mongo collection, defaulting to `name`
 
-- `async byEmailAddress( email [, options ])`
+- `async byEmailAddress( email [, options ]): Promise<ahClass|null>`
 
 Returns a Promise which will resolve to the cleaned up document of the unique user which holds the provided email address, or null if none or several (which would be a bug anyway).
 
@@ -182,7 +183,7 @@ Returns a Promise which will resolve to the cleaned up document of the unique us
 
 See also [findUserByEmail()](https://v3-docs.meteor.com/api/accounts.html#Accounts-findUserByEmail) Meteor function.`
 
-- `async byUsername( username [, options ])`
+- `async byUsername( username [, options ]): Promise<ahClass|null>`
 
 Returns a Promise which will resolve to the cleaned up document of the unique user which holds the provided username, or null if none or several (which would be a bug anyway).
 
