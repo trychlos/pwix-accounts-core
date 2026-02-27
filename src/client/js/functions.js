@@ -5,10 +5,13 @@
 import _ from 'lodash';
 const assert = require( 'assert' ).strict; // up to nodejs v16.x
 
+import { Logger } from 'meteor/pwix:logger';
 import { Modal } from 'meteor/pwix:modal';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import '../components/ah_select_dialog/ah_select_dialog.js';
+
+const logger = Logger.get();
 
 /**
  * @locus Client
@@ -26,7 +29,7 @@ import '../components/ah_select_dialog/ah_select_dialog.js';
  *  - $target: a jQuery object which will receive the 'ah-accounts-select' event at the validation of the dialog
  */
 AccountsHub.runAccountsSelection = function( selected, opts={} ){
-    _trace( 'AccountsHub.runAccountsSelection()', arguments );
+    logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'runAccountsSelection()', arguments );
     assert( selected && selected instanceof ReactiveVar, 'expects an instance of ReactiveVar, got '+selected );
     Modal.run({
         selected: selected,

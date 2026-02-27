@@ -2,11 +2,15 @@
  * pwix:accounts-hub/src/server/js/publish.js
  */
 
+import { Logger } from 'meteor/pwix:logger';
+
+const logger = Logger.get();
+
 // returns a cursor of all accounts in the named collection
 Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
     const ahInstance = AccountsHub.getInstance( instanceName );
     const self = this;
-    //console.debug( 'subscribing to', instanceName );
+    //logger.debug( 'subscribing to', instanceName );
 
     // @param {Object} item the Record item
     // @returns {Object} item the transformed item
@@ -46,14 +50,14 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
         initializing = false;
 
         self.onStop( function(){
-            //console.debug( 'stopping', instanceName );
+            //logger.debug( 'stopping', instanceName );
             observer.then(( handle ) => { handle.stop(); });
         });
 
         self.ready();
 
     } else {
-        console.warn( 'pwix_accounts_hub_list_all unknown or invalid instance name', instanceName );
+        logger.warn( 'pwix_accounts_hub_list_all: unknown or invalid instance name', instanceName );
         return false;
     }
 });

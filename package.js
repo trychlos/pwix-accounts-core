@@ -1,6 +1,6 @@
 Package.describe({
     name: 'pwix:accounts-hub',
-    version: '1.3.1-rc.0',
+    version: '1.4.0-rc.0',
     summary: 'Accounts management hub for Meteor',
     git: 'https://github.com/trychlos/pwix-accounts-hub',
     documentation: 'README.md'
@@ -31,6 +31,7 @@ function configure( api ){
     api.use( 'less@4.0.0', 'client' );
     api.use( 'mongo' );
     api.use( 'pwix:i18n@1.5.0' );
+    api.use( 'pwix:logger@1.0.0-rc' );
     api.use( 'pwix:modal@2.2.0' );
     api.use( 'pwix:options@2.1.0' );
     api.use( 'pwix:ui-utils@1.4.0' );

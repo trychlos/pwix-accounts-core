@@ -2,12 +2,13 @@
 
 ## ChangeLog
 
-### 1.3.1-rc.0
+### 1.4.0-rc.0
 
     Release date: 
 
     - Improve configure() warns when a key doesn't exist
     - Improve installation instructions
+    - Use pwix:logger universal logger, thus bumping minor candidate version number
 
 ### 1.3.0
 

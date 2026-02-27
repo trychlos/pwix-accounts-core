@@ -4,7 +4,6 @@
 
 import './global.js';
 import './constants.js';
-import './trace.js';
 
 import { ahClass } from '../classes/ah-class.class.js';
 import { ahOptions } from '../classes/ah-options.class.js';

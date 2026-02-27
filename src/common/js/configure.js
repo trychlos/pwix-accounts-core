@@ -4,7 +4,10 @@
 
 import _ from 'lodash';
 
+import { Logger } from 'meteor/pwix:logger';
 import { ReactiveVar } from 'meteor/reactive-var';
+
+const logger = Logger.get();
 
 let _conf = {};
 AccountsHub._conf = new ReactiveVar( _conf );
@@ -28,16 +31,13 @@ AccountsHub.configure = function( o ){
             if( Object.keys( AccountsHub._defaults ).includes( it )){
                 built_conf[it] = o[it];
             } else {
-                console.warn( 'pwix:accounts-hub configure() ignore unmanaged key \''+it+'\'' );
+                logger.warn( 'configure() ignore unmanaged key \''+it+'\'' );
             }
         });
         if( Object.keys( built_conf ).length ){
             _conf = _.merge( AccountsHub._defaults, _conf, built_conf );
             AccountsHub._conf.set( _conf );
-            // be verbose if asked for
-            if( _conf.verbosity & AccountsHub.C.Verbose.CONFIGURE ){
-                console.log( 'pwix:accounts-hub configure() with', built_conf );
-            }
+            logger.verbose({ verbosity: _conf.verbosity, against: AccountsHub.C.Verbose.CONFIGURE }, 'configure() with', built_conf );
         }
     }
     // also acts as a getter

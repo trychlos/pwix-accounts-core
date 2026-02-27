@@ -5,12 +5,15 @@
 import _ from 'lodash';
 import { strict as assert } from 'node:assert';
 
+import { Logger } from 'meteor/pwix:logger';
 import { Tracker } from 'meteor/tracker';
 
 AccountsHub._instances = {
     dep: new Tracker.Dependency(),
     data: {}
 };
+
+const logger = Logger.get();
 
 /**
  * @locus Anywhere
@@ -19,14 +22,14 @@ AccountsHub._instances = {
  * @returns {Boolean} whether userA and userB are same
  */
 AccountsHub.areSame = function( userA, userB ){
-    _trace( 'AccountsHub.areSame()', arguments );
+    logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'areSame()', arguments );
     const idA = userA ? ( _.isObject( userA ) ? userA._id : ( _.isString( userA ) ? userA : null )) : null;
     const idB = userB ? ( _.isObject( userB ) ? userB._id : ( _.isString( userB ) ? userB : null )) : null;
     if( idA === null ){
-        console.warn( 'unable to get user identifier from', userA );
+        logger.warn( 'areSame() unable to get user identifier from', userA );
     }
     if( idB === null ){
-        console.warn( 'unable to get user identifier from', userB );
+        logger.warn( 'areSame() unable to get user identifier from', userB );
     }
     const res = ( idA === idB );
     return res;
@@ -38,7 +41,7 @@ AccountsHub.areSame = function( userA, userB ){
  * @returns {ahClass} the corresponding ahClass instance, or null
  */
 AccountsHub.getByTabularName = function( name ){
-    _trace( 'AccountsHub.getByTabularName()', arguments );
+    logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'getByTabularName()', arguments );
     assert( name && _.isString( name ), 'expects a string, got '+name );
     let found = null;
     Object.values( AccountsHub._instances.data ).every(( it ) => {
@@ -59,7 +62,7 @@ AccountsHub.getByTabularName = function( name ){
  *  A reactive data source
  */
 AccountsHub.getInstance = function( name, instance ){
-    _trace( 'AccountsHub.getInstance()', arguments );
+    logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'getInstance()', arguments );
     assert( name && _.isString( name ), 'expects a string, got '+name );
     if( instance ){
         assert( instance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+instance );

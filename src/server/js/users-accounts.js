@@ -6,13 +6,15 @@
  */
 
 import { Accounts } from 'meteor/accounts-base';
+import { Logger } from 'meteor/pwix:logger';
 import { Random } from 'meteor/random';
 
+const logger = Logger.get();
 _fns = [];
 
 // Server-side: this is a pre-create user on Meteor.users standard collection, though a temmporary _id is defined
 const _onCreateUser = function( opts, user ){
-    //console.log( 'AccountsHub.onCreateUser: opts=%o, user=%o', opts, user );
+    //logger.log( 'AccountsHub.onCreateUser: opts=%o, user=%o', opts, user );
     // make sure each email has its own identifier (required by Blaze)
     ( user.emails || [] ).forEach(( it ) => {
         if( !it._id ){
@@ -45,7 +47,7 @@ AccountsHub.onCreateUser( _onCreateUser );
 
 // track the account creation
 Accounts.validateNewUser(( user ) => {
-    console.log( 'Accounts.validateNewUser: user=%o', user );
+    logger.log( 'Accounts.validateNewUser: user=%o', user );
     // Return true to allow user creation to proceed
     return true;
 });
@@ -53,7 +55,7 @@ Accounts.validateNewUser(( user ) => {
 /*
 // Server-side: validating the new user creation in Accounts collection
 Accounts.validateNewUser(( user ) => {
-    console.log( 'Accounts.validateNewUser: user=%o', user );
+    logger.log( 'Accounts.validateNewUser: user=%o', user );
     new SimpleSchema({
         _id: { type: String },
         username: { type: String, optional: true },
@@ -81,7 +83,7 @@ Accounts.validateNewUser(( user ) => {
 // https://v3-docs.meteor.com/api/accounts.html#AccountsServer-validateLoginAttempt
 // @locus Meteor.users collection
 Accounts.validateLoginAttempt(( o ) => {
-    //console.log( o );
+    //logger.debug( o );
     if( !o.allowed ){
         return false;
     }

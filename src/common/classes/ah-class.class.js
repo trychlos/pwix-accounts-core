@@ -9,10 +9,13 @@ const assert = require( 'assert' ).strict;
 import emailValidator from 'email-validator';
 import zxcvbn from 'zxcvbn';
 
+import { Logger } from 'meteor/pwix:logger';
 import { Mongo } from 'meteor/mongo';
 import { pwixI18n } from 'meteor/pwix:i18n';
 
 import { ahOptions } from './ah-options.class.js';
+
+const logger = Logger.get();
 
 export class ahClass {
 
@@ -277,7 +280,7 @@ export class ahClass {
      * @returns: {Object}
      */
     _preferredLabelByDoc( user, preferred, result ){
-        _trace( 'ahClass._preferredLabelByDoc()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass._preferredLabelByDoc()', arguments );
         // make reasonably sure we have a user document
         if( user && _.isObject( user ) && user._id && _.isString( user._id )){
             let mypref = preferred;
@@ -294,15 +297,15 @@ export class ahClass {
                 result = { label: user.emails[0].address, origin: AccountsHub.C.PreferredLabel.EMAIL_ADDRESS };
 
             } else if( user.username ){
-                _verbose( AccountsHub.C.Verbose.PREFERREDLABEL, 'pwix:accounts-hub fallback to username while preferred is', mypref );
+                logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.PREFERREDLABEL }, 'ahClass._preferredLabelByDoc() fallback to username while preferred is', mypref );
                 result = { label: user.username, origin: AccountsHub.C.PreferredLabel.USERNAME };
 
             } else if( user.usernames && user.usernames[0].username ){
-                _verbose( AccountsHub.C.Verbose.PREFERREDLABEL, 'pwix:accounts-hub fallback to usernames while preferred is', mypref );
+                logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.PREFERREDLABEL }, 'ahClass._preferredLabelByDoc() fallback to usernames while preferred is', mypref );
                 result = { label: user.usernames[0].username, origin: AccountsHub.C.PreferredLabel.USERNAME };
 
             } else if( user.emails && user.emails[0].address ){
-                _verbose( AccountsHub.C.Verbose.PREFERREDLABEL, 'pwix:accounts-hub fallback to email address name while preferred is', mypref );
+                logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.PREFERREDLABEL }, 'ahClass._preferredLabelByDoc() fallback to email address name while preferred is', mypref );
                 const words = user.emails[0].address.split( '@' );
                 result = { label: words[0], origin: AccountsHub.C.PreferredLabel.EMAIL_ADDRESS };
             }
@@ -319,7 +322,7 @@ export class ahClass {
      * @returns {Promise} which eventually resolves to the result object, or null if user has not been found
      */
     async _preferredLabelById( id, preferred, result ){
-        _trace( 'ahClass._preferredLabelById()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass._preferredLabelById()', arguments );
         const self = this;
         return this.byId( id )
             .then(( user ) => {
@@ -333,7 +336,7 @@ export class ahClass {
      * @returns {Object} the initial result
      */
     _preferredLabelInitialResult( arg, preferred ){
-        _trace( 'ahClass._preferredLabelInitialResult()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass._preferredLabelInitialResult()', arguments );
         if( arg ){
             // if a user identifier is provided
             if( _.isString( arg )){
@@ -369,28 +372,26 @@ export class ahClass {
      * @returns {ahClass}
      */
     constructor( args ){
-        _trace( 'ahClass.ahClass()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.ahClass()', arguments );
         this.#args = args;
         this.#opts = new ahOptions( args );
-        //console.debug( 'pwix:accounts-hub instanciating', this.name(), args );
+        //logger.debug( 'pwix:accounts-hub instanciating', this.name(), args );
 
         // if the name is already instanciated, then just return it
         const instance = AccountsHub.getInstance( this.name());
         if( instance ){
-            console.debug( 'pwix:accounts-hub returning already instanciated ahInstance', this.name());
+            logger.info( 'pwix:accounts-hub returning already instanciated ahInstance', this.name());
             return instance;
         }
 
-        if( AccountsHub.configure().verbosity & AccountsHub.C.Verbose.INSTANCE ){
-            console.log( 'pwix:accounts-hub.ahClass() instanciated for', this.opts().collection());
-        }
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.INSTANCE }, 'ahClass.ahClass() instanciated for', this.opts().collection());
 
         // define the Mongo collection
         if( this.opts().collection() === 'users' ){
-            //console.debug( 'pwix:accounts-hub using users collection' );
+            //logger.debug( 'pwix:accounts-hub using users collection' );
             this.#collection = Meteor.users;
         } else {
-            //console.debug( 'pwix:accounts-hub defining collection', this.opts().collection());
+            //logger.debug( 'pwix:accounts-hub defining collection', this.opts().collection());
             this.#collection = new Mongo.Collection( this.opts().collection());
         }
         // and (on the server) deny all client-side direct updates
@@ -408,7 +409,7 @@ export class ahClass {
      * @returns {Promise} which will eventually resolve to the cleanup user document, or null
      */
     async byEmailAddress( email, options={} ){
-        _trace( 'ahClass.byEmailAddress()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byEmailAddress()', arguments );
         assert( email && _.isString( email ), 'expects email be a string, got '+email );
         assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byEmailAddress', this.name(), email, options ) : await AccountsHub.s.byEmailAddress( this.name(), email, options );
@@ -421,7 +422,7 @@ export class ahClass {
      * @returns {Promise} which will eventually resolve to the cleanup user document, or null
      */
     async byId( id, options={} ){
-        _trace( 'ahClass.byId()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byId()', arguments );
         assert( id && _.isString( id ), 'expects id be a string, got '+id );
         assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byId', this.name(), id, options ) : await AccountsHub.s.byId( this.name(), id, options );
@@ -434,7 +435,7 @@ export class ahClass {
      * @returns {Promise} which will eventually resolve to the cleanup user document, or null
      */
     async byUsername( username, options={} ){
-        _trace( 'ahClass.byUsername()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byUsername()', arguments );
         assert( username && _.isString( username ), 'expects email be a string, got '+username );
         assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byUsername', this.name(), username, options ) : await AccountsHub.s.byUsername( this.name(), username, options );
@@ -502,7 +503,7 @@ export class ahClass {
      *  See this.opts().collection() for the collection name
      */
     collection(){
-        _trace( 'ahClass.collection()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.collection()' );
         return this.#collection;
     }
 
@@ -512,7 +513,7 @@ export class ahClass {
      * @returns {Object} the default Mongo selector for this email address
      */
     emailSelector( email ){
-        _trace( 'ahClass.emailSelector()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.emailSelector()', arguments );
         let selector = { 'emails.address': email };
         return selector;
     }
@@ -522,7 +523,7 @@ export class ahClass {
      * @returns {String} the name of this instance
      */
     name(){
-        _trace( 'ahClass.name()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.name()' );
         return this.opts().name();
     }
 
@@ -531,7 +532,7 @@ export class ahClass {
      * @returns {ahOptions} the instanciation options
      */
     opts(){
-        _trace( 'ahClass.opts()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.opts()' );
         return this.#opts;
     }
 
@@ -546,7 +547,7 @@ export class ahClass {
      *  - origin: the origin, which may be 'ID' or AccountsHub.C.PreferredLabel.USERNAME or AccountsHub.C.PreferredLabel.EMAIL_ADDRESS
      */
     async preferredLabel( arg, preferred=null ){
-        _trace( 'ahClass.preferredLabel()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.preferredLabel()', arguments );
         let result = this._preferredLabelInitialResult( arg, preferred );
         const self = this;
         if( result ){
@@ -555,7 +556,7 @@ export class ahClass {
                 return Promise.resolve( result )
                     .then(() => { return self._preferredLabelById( arg, preferred || self.opts().preferredLabel(), result ); })
                     .then(( res ) => {
-                        //console.debug( 'res', res );
+                        //logger.debug( 'res', res );
                         return res ? res : result;
                     });
             }
@@ -563,12 +564,12 @@ export class ahClass {
                 return Promise.resolve( result )
                     .then(() => { return self._preferredLabelByDoc( arg, preferred || self.opts().preferredLabel(), result ); })
                     .then(( res ) => {
-                        //console.debug( res );
+                        //logger.debug( res );
                         return res;
                     });
             }
         }
-        console.error( 'AccountsHub.preferredLabel() expects at least one argument, none found' );
+        logger.error( 'AccountsHub.preferredLabel() expects at least one argument, none found' );
         return null;
     }
 
@@ -586,7 +587,7 @@ export class ahClass {
      * @returns {Object} the default Mongo selector for this username
      */
     usernameSelector = function( username ){
-        _trace( 'ahClass.usernameSelector()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.usernameSelector()', arguments );
         let selector = { $or: [{ username: username }, { 'usernames.username': username }]};
         return selector;
     }

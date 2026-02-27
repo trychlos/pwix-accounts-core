@@ -6,9 +6,12 @@ import _ from 'lodash';
 const assert = require( 'assert' ).strict;
 
 import { Accounts } from 'meteor/accounts-base';
+import { Logger } from 'meteor/pwix:logger';
 import { Mongo } from 'meteor/mongo';
 
 import { ahOptions } from '../../common/classes/ah-options.class.js';
+
+const logger = Logger.get();
 
 AccountsHub.s = {
 
@@ -41,7 +44,7 @@ AccountsHub.s = {
      *  In other words, an email address can be considered as a user identiier in Meteor ecosystems
      */
     async byEmailAddress( instanceName, email, options={} ){
-        _trace( 'AccountsHub.s.byEmailAddress()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byEmailAddress()', arguments );
         assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
         assert( email && _.isString( email ), 'expects email be a string, got '+email );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
@@ -64,9 +67,9 @@ AccountsHub.s = {
                 result = AccountsHub.s.cleanupUserDocument( docs[0] );
             }
         } else {
-            console.error( 'ahInstance not found', instanceName );
+            logger.error( 'byEmailAddress() ahInstance not found', instanceName );
         }
-        _verbose( AccountsHub.C.Verbose.SERVER, 'pwix:accounts-hub byEmailAddress('+email+')', result );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byEmailAddress('+email+'):', result );
         return result;
 },
 
@@ -75,7 +78,7 @@ AccountsHub.s = {
      * @returns {Promise} which eventually resolves to the user document
      */
     async byId( instanceName, id, options={} ){
-        _trace( 'AccountsHub.s.byId()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byId()', arguments );
         assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
         assert( id && _.isString( id ), 'expects id be a string, got '+id );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
@@ -90,9 +93,9 @@ AccountsHub.s = {
                 doc = AccountsHub.s.cleanupUserDocument( doc );
             }
         } else {
-            console.error( 'ahInstance not found', instanceName );
+            logger.error( 'byId() ahInstance not found', instanceName );
         }
-        _verbose( AccountsHub.C.Verbose.SERVER, 'pwix:accounts-hub byId('+id+')', doc );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byId('+id+')', doc );
         return doc;
     },
 
@@ -106,7 +109,7 @@ AccountsHub.s = {
      *  In other words, a username can be considered as a user identiier in Meteor ecosystems
      */
     async byUsername( instanceName, username, options={} ){
-        _trace( 'AccountsHub.s.byUsername()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byUsername()', arguments );
         assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
         assert( username && _.isString( username ), 'expects email be a string, got '+username );
         assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
@@ -129,9 +132,9 @@ AccountsHub.s = {
                 result = AccountsHub.s.cleanupUserDocument( docs[0] );
             }
         } else {
-            console.error( 'ahInstance not found', instanceName );
+            logger.error( 'byUsername() ahInstance not found', instanceName );
         }
-        _verbose( AccountsHub.C.Verbose.SERVER, 'pwix:accounts-hub byUsername('+username+')', result );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byUsername('+username+')', result );
         return result;
     },
 
@@ -157,7 +160,7 @@ AccountsHub.s = {
      * Note: do NOT expose this function in client-side world. This would be a security risk as a malicious user could just override it.
      */
     cleanupUserDocument( user ){
-        _trace( 'AccountsHub.s.cleanupUserDocument()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'cleanupUserDocument()', arguments );
         if( user ){
             if( user.services ){
                 delete user.services.resume;

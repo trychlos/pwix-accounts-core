@@ -19,6 +19,7 @@
 import _ from 'lodash';
 import { strict as assert } from 'node:assert';
 
+import { Logger } from 'meteor/pwix:logger';
 import { Modal } from 'meteor/pwix:modal';
 import { ReactiveVar } from 'meteor/reactive-var';
 
@@ -26,9 +27,11 @@ import '../ah_accounts_select/ah_accounts_select.js';
 
 import './ah_select_dialog.html';
 
+const logger = Logger.get();
+
 Template.ah_select_dialog.onCreated( function(){
     const self = this;
-    //console.debug( this );
+    //logger.debug( this );
 
     self.AH = {
         isModal: new ReactiveVar( false ),
@@ -54,7 +57,7 @@ Template.ah_select_dialog.onCreated( function(){
         if( ahInstance ){
             self.AH.handle.set( self.subscribe( 'pwix_accounts_hub_list_all', name ));
         } else {
-            console.warn( 'unknown AccountsHub.ahClass instance', name );
+            logger.warn( 'unknown AccountsHub.ahClass instance', name );
         }
     });
 
@@ -86,7 +89,7 @@ Template.ah_select_dialog.onCreated( function(){
                 items.push( it );
             }
         });
-        //console.debug( 'selectable', selectable, 'selected', selected, 'items', items );
+        //logger.debug( 'selectable', selectable, 'selected', selected, 'items', items );
         self.AH.lastSelected = { items: items, selected: selected };
     });
 });
@@ -131,7 +134,7 @@ Template.ah_select_dialog.events({
     // submit
     //  event triggered in case of a modal
     'md-click .ah-select-dialog'( event, instance, data ){
-        //console.debug( event, data );
+        //logger.debug( event, data );
         if( data.button.id === Modal.C.Button.OK ){
             instance.$( event.currentTarget ).trigger( 'iz-submit' );
         }

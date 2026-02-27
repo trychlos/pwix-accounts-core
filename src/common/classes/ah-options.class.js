@@ -4,7 +4,10 @@
  * This class manages the global configuration options.
  */
 
+import { Logger } from 'meteor/pwix:logger';
 import { Options } from 'meteor/pwix:options';
+
+const logger = Logger.get();
 
 export class ahOptions extends Options.Base {
 
@@ -75,7 +78,7 @@ export class ahOptions extends Options.Base {
      * @returns {ahOptions}
      */
     constructor( options ){
-        _trace( 'ahOptions.ahOptions()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.ahOptions()', arguments );
         super( options );
         return this;
     }
@@ -87,7 +90,7 @@ export class ahOptions extends Options.Base {
      *  See ahInstance.collection() for the Mongo collection
      */
     collection( value ){
-        _trace( 'ahOptions.collection()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.collection()', arguments );
         return this.base_gsStringObjectFn( 'collection', value, { default: this.name() });
     }
 
@@ -97,7 +100,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     haveEmailAddress( value ){
-        _trace( 'ahOptions.haveEmailAddress()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.haveEmailAddress()', arguments );
         return this.base_gsStringObjectFn( 'haveEmailAddress', value, { default: ahOptions._defaults.haveEmailAddress, ref: ahOptions.Identifiers });
     }
 
@@ -107,7 +110,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     haveUsername( value ){
-        _trace( 'ahOptions.haveUsername()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.haveUsername()', arguments );
         return this.base_gsStringObjectFn( 'haveUsername', value, { default: ahOptions._defaults.haveUsername, ref: ahOptions.Identifiers });
     }
 
@@ -126,7 +129,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     name( value ){
-        _trace( 'ahOptions.name()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.name()', arguments );
         return this.base_gsStringObjectFn( 'name', value, { default: ahOptions._defaults.name });
     }
 
@@ -136,7 +139,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     onSignin( value ){
-        _trace( 'ahOptions.onSignin()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.onSignin()', arguments );
         return this.base_gsFn( 'onSignin', value, { default: ahOptions._defaults.onSignin });
     }
 
@@ -148,7 +151,7 @@ export class ahOptions extends Options.Base {
      * @returns {Integer}
      */
     passwordLength( value ){
-        _trace( 'ahOptions.passwordLength()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.passwordLength()', arguments );
         return this.base_gsIntegerFn( 'passwordLength', value, { check: ( val ) => { return val >= 0 }, default: ahOptions._defaults.passwordLength });
     }
 
@@ -158,7 +161,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     passwordStrength( value ){
-        _trace( 'ahOptions.passwordStrength()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.passwordStrength()', arguments );
         return this.base_gsStringFn( 'passwordStrength', value, { default: ahOptions._defaults.passwordStrength, ref: ahOptions.Strength });
     }
 
@@ -168,7 +171,7 @@ export class ahOptions extends Options.Base {
      * @returns {String}
      */
     preferredLabel( value ){
-        _trace( 'ahOptions.preferredLabel()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.preferredLabel()', arguments );
         return this.base_gsStringObjectFn( 'preferredLabel', value, { default: ahOptions._defaults.preferredLabel, ref: ahOptions.Labels });
     }
 
@@ -196,7 +199,7 @@ export class ahOptions extends Options.Base {
      * @returns {Integer}
      */
     usernameLength( value ){
-        _trace( 'ahOptions.usernameLength()', arguments );
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.usernameLength()', arguments );
         return this.base_gsIntegerFn( 'usernameLength', value, { check: ( val ) => { return val >= 0 }, default: ahOptions._defaults.usernameLength });
     }
 }
