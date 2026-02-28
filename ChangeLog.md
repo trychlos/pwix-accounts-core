@@ -10,6 +10,7 @@
     - Improve installation instructions
     - Use pwix:logger universal logger, thus bumping minor candidate version number
     - Define a ready() reactive data source
+    - Have a guard against having both autoUsers=true and pwix:accounts-manager package
 
 ### 1.3.0
 

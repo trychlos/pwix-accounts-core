@@ -293,6 +293,8 @@ Known configuration options are:
 
     When `true` (the default), then the `ahClass` will be instanciated at startup time.
 
+    Note: do NOT leave default `autoUsers` to `true` if you are too using `pwix:accounts-manager`. This is because this later extends the accounts class, and so expects to find back its own instances.
+
 - `verbosity`
 
     The verbosity level as:

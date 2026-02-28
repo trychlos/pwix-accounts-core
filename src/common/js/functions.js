@@ -70,7 +70,7 @@ AccountsHub.getInstance = function( name, instance ){
         AccountsHub._instances.data[name] = instance;
         AccountsHub._instances.dep.changed();
     } else {
-        logger.debug( 'getInstance()', AccountsHub._instances.data );
+        //logger.debug( 'getInstance()', AccountsHub._instances.data );
         instance = AccountsHub._instances.data[name] || null;
         AccountsHub._instances.dep.depend();
     }
