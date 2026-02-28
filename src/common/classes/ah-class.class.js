@@ -5,7 +5,6 @@
  */
 
 import _ from 'lodash';
-const assert = require( 'assert' ).strict;
 import emailValidator from 'email-validator';
 import zxcvbn from 'zxcvbn';
 
@@ -411,8 +410,14 @@ export class ahClass {
      */
     async byEmailAddress( email, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byEmailAddress()', arguments );
-        assert( email && _.isString( email ), 'expects email be a string, got '+email );
-        assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
+        if( !email || !_.isString( email )){
+            logger.error( 'expects email be a string, got', email, 'throwing...' );
+            throw new Error( 'Bad argument: email' );
+        }
+        if( options && !_.isObject( options )){
+            logger.error( 'expects options be an object if set, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byEmailAddress', this.name(), email, options ) : await AccountsHub.s.byEmailAddress( this.name(), email, options );
     }
 
@@ -424,8 +429,14 @@ export class ahClass {
      */
     async byId( id, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byId()', arguments );
-        assert( id && _.isString( id ), 'expects id be a string, got '+id );
-        assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
+        if( !id || !_.isString( id )){
+            logger.error( 'expects id be a non-empty string, got', id, 'throwing...' );
+            throw new Error( 'Bad argument: id' );
+        }
+        if( options && !_.isObject( options )){
+            logger.error( 'expects options be an object if set, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byId', this.name(), id, options ) : await AccountsHub.s.byId( this.name(), id, options );
     }
 
@@ -437,8 +448,14 @@ export class ahClass {
      */
     async byUsername( username, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.byUsername()', arguments );
-        assert( username && _.isString( username ), 'expects email be a string, got '+username );
-        assert( !options || _.isObject( options ), 'expects options be an object if set, got ',+options );
+        if( !username || !_.isString( username )){
+            logger.error( 'expects username be a non-empty string, got', username, 'throwing...' );
+            throw new Error( 'Bad argument: username' );
+        }
+        if( options && !_.isObject( options )){
+            logger.error( 'expects options be an object if set, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byUsername', this.name(), username, options ) : await AccountsHub.s.byUsername( this.name(), username, options );
     }
 

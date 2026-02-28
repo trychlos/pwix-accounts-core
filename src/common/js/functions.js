@@ -3,7 +3,6 @@
  */
 
 import _ from 'lodash';
-import { strict as assert } from 'node:assert';
 
 import { Logger } from 'meteor/pwix:logger';
 import { Tracker } from 'meteor/tracker';
@@ -42,7 +41,10 @@ AccountsHub.areSame = function( userA, userB ){
  */
 AccountsHub.getByTabularName = function( name ){
     logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'getByTabularName()', arguments );
-    assert( name && _.isString( name ), 'expects a string, got '+name );
+    if( !name || !_.isString( name )){
+        logger.error( 'expects name be a non-empty string, got', name, 'throwing...' );
+        throw new Error( 'Bad argument: name' );
+    }
     let found = null;
     Object.values( AccountsHub._instances.data ).every(( it ) => {
         if( it.tabularName() === name ){
@@ -64,13 +66,18 @@ AccountsHub.getByTabularName = function( name ){
  */
 AccountsHub.getInstance = function( name, instance ){
     logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'getInstance()', arguments );
-    assert( name && _.isString( name ), 'expects a string, got '+name );
+    if( !name || !_.isString( name )){
+        logger.error( 'expects name be a non-empty string, got', name, 'throwing...' );
+        throw new Error( 'Bad argument: name' );
+    }
+    if( instance && !( instance instanceof AccountsHub.ahClass )){
+        logger.error( 'expects instance be an instance of AccountsHub.ahClass when set, got', instance, 'throwing...' );
+        throw new Error( 'Bad argument: instance' );
+    }
     if( instance ){
-        assert( instance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+instance );
         AccountsHub._instances.data[name] = instance;
         AccountsHub._instances.dep.changed();
     } else {
-        //logger.debug( 'getInstance()', AccountsHub._instances.data );
         instance = AccountsHub._instances.data[name] || null;
         AccountsHub._instances.dep.depend();
     }

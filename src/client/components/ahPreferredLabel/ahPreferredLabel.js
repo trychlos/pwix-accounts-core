@@ -11,11 +11,12 @@
  *   when set, the label is preferentially taken over the user id
  */
 
-const assert = require( 'assert' ).strict;
-
 import { AccountsHub } from 'meteor/pwix:accounts-hub';
+import { Logger } from 'meteor/pwix:logger';
 
 import './ahPreferredLabel.html';
+
+const logger = Logger.get();
 
 Template.ahPreferredLabel.onCreated( function(){
     const self = this;
@@ -35,10 +36,14 @@ Template.ahPreferredLabel.onCreated( function(){
                 const name = Template.currentData().ahName || AccountsHub.ahOptions._defaults.name;
                 if( name ){
                     const ahInstance = AccountsHub.getInstance( name );
-                    assert( ahInstance && ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
-                    ahInstance.preferredLabel( userId ).then(( res ) => {
-                        self.APP.preferredLabel.set( res.label );
-                    });
+                    if( ahInstance && ahInstance instanceof AccountsHub.ahClass ){
+                        ahInstance.preferredLabel( userId ).then(( res ) => {
+                            self.APP.preferredLabel.set( res.label );
+                        });
+                    } else {
+                        logger.error( 'expects \'ahInstance\' be an instance of \'ahClass\', got', ahInstance, 'throwing...' );
+                        throw new Error( 'Bad argument: ahInstance' );
+                    }
                 }
             }
         }

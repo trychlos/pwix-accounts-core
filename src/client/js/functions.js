@@ -3,7 +3,6 @@
  */
 
 import _ from 'lodash';
-const assert = require( 'assert' ).strict; // up to nodejs v16.x
 
 import { Logger } from 'meteor/pwix:logger';
 import { Modal } from 'meteor/pwix:modal';
@@ -30,18 +29,22 @@ const logger = Logger.get();
  */
 AccountsHub.runAccountsSelection = function( selected, opts={} ){
     logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'runAccountsSelection()', arguments );
-    assert( selected && selected instanceof ReactiveVar, 'expects an instance of ReactiveVar, got '+selected );
-    Modal.run({
-        selected: selected,
-        disabled: opts.disabled === true,
-        selectOptions: opts.selectOptions,
-        instance: opts.instance || 'users',
-        select_ph: opts.select_ph,
-        dialog_title: opts.dialog_title,
-        $target: opts.$target,
-        mdBody: 'ah_select_dialog',
-        mdButtons: [ Modal.C.Button.CANCEL, Modal.C.Button.OK ],
-        mdClasses: 'modal-lg',
-        mdTitle: opts.dialog_title || pwixI18n.label( I18N, 'dialogs.accounts_select_dialog_title' )
-    });
+    if( Meteor.isClient && selected && selected instanceof ReactiveVar ){
+        Modal.run({
+            selected: selected,
+            disabled: opts.disabled === true,
+            selectOptions: opts.selectOptions,
+            instance: opts.instance || 'users',
+            select_ph: opts.select_ph,
+            dialog_title: opts.dialog_title,
+            $target: opts.$target,
+            mdBody: 'ah_select_dialog',
+            mdButtons: [ Modal.C.Button.CANCEL, Modal.C.Button.OK ],
+            mdClasses: 'modal-lg',
+            mdTitle: opts.dialog_title || pwixI18n.label( I18N, 'dialogs.accounts_select_dialog_title' )
+        });
+    } else {
+        logger.error( 'expects \'selected\' be an instance of \'ReactiveVar\', got', selected, 'throwing...' );
+        throw new Error( 'Bad argument: selected' );
+    }
 };

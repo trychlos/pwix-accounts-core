@@ -17,7 +17,6 @@
  */
 
 import _ from 'lodash';
-import { strict as assert } from 'node:assert';
 
 import { Logger } from 'meteor/pwix:logger';
 import { Modal } from 'meteor/pwix:modal';

@@ -3,7 +3,6 @@
  */
 
 import _ from 'lodash';
-const assert = require( 'assert' ).strict;
 
 import { Accounts } from 'meteor/accounts-base';
 import { Logger } from 'meteor/pwix:logger';
@@ -45,29 +44,48 @@ AccountsHub.s = {
      */
     async byEmailAddress( instanceName, email, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byEmailAddress()', arguments );
-        assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
-        assert( email && _.isString( email ), 'expects email be a string, got '+email );
-        assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
+        if( !instanceName || !_.isString( instanceName )){
+            logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
+            throw new Error( 'Bad argument: instanceName' );
+        }
+        if( !email || !_.isString( email )){
+            logger.error( 'expects email be a non-empty string, got', email, 'throwing...' );
+            throw new Error( 'Bad argument: email' );
+        }
+        if( !options || !_.isObject( options )){
+            logger.error( 'expects options be an Object, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         let result = null;
         const ahInstance = AccountsHub.getInstance( instanceName );
-        if( ahInstance ){
-            assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
-            let docs = null;
-            if( ahInstance.opts().collection() === ahOptions._defaults.name ){
-                docs = await Accounts.findUserByEmail( email, options );
-                if( docs ){
-                    docs = [ docs ];
-                }
-            } else {
-                const collection = ahInstance.collection();
-                assert( collection && collection instanceof Mongo.Collection, 'expects a Mongo.Collection, got '+collection );
-                docs = await collection.find( ahInstance.emailSelector( email ), options ).fetchAsync();
-            }
-            if( docs && docs.length === 1 && docs[0] ){
-                result = AccountsHub.s.cleanupUserDocument( docs[0] );
+        if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
+            logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, 'throwing...' );
+            throw new Error( 'Bad argument: ahInstance' );
+        }
+        let docs = null;
+        if( ahInstance.opts().collection() === ahOptions._defaults.name ){
+            docs = await Accounts.findUserByEmail( email, options );
+            if( docs ){
+                docs = [ docs ];
             }
         } else {
-            logger.error( 'byEmailAddress() ahInstance not found', instanceName );
+            const collection = ahInstance.collection();
+            if( !collection || !( collection instanceof Mongo.Collection )){
+                logger.error( 'expects collection be an instance of Mongo.Collection, got', collection, 'throwing...' );
+                throw new Error( 'Bad argument: collection' );
+            }
+            docs = await collection.find( ahInstance.emailSelector( email ), options ).fetchAsync();
+        }
+<<<<<<< HEAD
+        if( docs && docs.length === 1 && docs[0] ){
+=======
+        if( docs && docs.length > 1 ){
+            logger.error( 'expects email address be an account identifier, but got', docs.length, 'documents, throwing...' );
+            throw new Error( 'Bad argument: account' );
+        }
+        if( docs && docs.length ){
+>>>>>>> 6aee82e (tt)
+            result = AccountsHub.s.cleanupUserDocument( docs[0] );
         }
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byEmailAddress('+email+'):', result );
         return result;
@@ -79,21 +97,32 @@ AccountsHub.s = {
      */
     async byId( instanceName, id, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byId()', arguments );
-        assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
-        assert( id && _.isString( id ), 'expects id be a string, got '+id );
-        assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
+        if( !instanceName || !_.isString( instanceName )){
+            logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
+            throw new Error( 'Bad argument: instanceName' );
+        }
+        if( !id || !_.isString( id )){
+            logger.error( 'expects id be a non-empty string, got', id, 'throwing...' );
+            throw new Error( 'Bad argument: id' );
+        }
+        if( !options || !_.isObject( options )){
+            logger.error( 'expects options be an Object, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         let doc = null;
         const ahInstance = AccountsHub.getInstance( instanceName );
-        if( ahInstance ){
-            assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
-            const collection = ahInstance.collection();
-            assert( collection && collection instanceof Mongo.Collection, 'expects a Mongo.Collection, got '+collection );
-            doc = await collection.findOneAsync({ _id: id }, options );
-            if( doc ){
-                doc = AccountsHub.s.cleanupUserDocument( doc );
-            }
-        } else {
-            logger.error( 'byId() ahInstance not found', instanceName );
+        if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
+            logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, 'throwing...' );
+            throw new Error( 'Bad argument: ahInstance' );
+        }
+        const collection = ahInstance.collection();
+        if( !collection || !( collection instanceof Mongo.Collection )){
+            logger.error( 'expects collection be an instance of Mongo.Collection, got', collection, 'throwing...' );
+            throw new Error( 'Bad argument: collection' );
+        }
+        doc = await collection.findOneAsync({ _id: id }, options );
+        if( doc ){
+            doc = AccountsHub.s.cleanupUserDocument( doc );
         }
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byId('+id+')', doc );
         return doc;
@@ -110,29 +139,44 @@ AccountsHub.s = {
      */
     async byUsername( instanceName, username, options={} ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'byUsername()', arguments );
-        assert( instanceName && _.isString( instanceName ), 'expects instanceName be a string, got '+instanceName );
-        assert( username && _.isString( username ), 'expects email be a string, got '+username );
-        assert( options && _.isObject( options ), 'expects options be an object, got ',+options );
+        if( !instanceName || !_.isString( instanceName )){
+            logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
+            throw new Error( 'Bad argument: instanceName' );
+        }
+        if( !username || !_.isString( username )){
+            logger.error( 'expects username be a non-empty string, got', username, 'throwing...' );
+            throw new Error( 'Bad argument: username' );
+        }
+        if( !options || !_.isObject( options )){
+            logger.error( 'expects options be an Object, got', options, 'throwing...' );
+            throw new Error( 'Bad argument: options' );
+        }
         let result = null;
         const ahInstance = AccountsHub.getInstance( instanceName );
-        if( ahInstance ){
-            assert( ahInstance instanceof AccountsHub.ahClass, 'expects an instance of AccountsHub.ahClass, got '+ahInstance );
-            let docs = null;
-            if( ahInstance.opts().collection() === ahOptions._defaults.name ){
-                docs = await Accounts.findUserByUsername( username, options );
-                if( docs ){
-                    docs = [ docs ];
-                }
-            } else {
-                const collection = ahInstance.collection();
-                assert( collection && collection instanceof Mongo.Collection, 'expects a Mongo.Collection, got '+collection );
-                docs = await collection.find( ahInstance.usernameSelector( username ), options ).fetchAsync();
-            }
-            if( docs && docs.length === 1 && docs[0] ){
-                result = AccountsHub.s.cleanupUserDocument( docs[0] );
+        if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
+            logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, 'throwing...' );
+            throw new Error( 'Bad argument: ahInstance' );
+        }
+        let docs = null;
+        if( ahInstance.opts().collection() === ahOptions._defaults.name ){
+            docs = await Accounts.findUserByUsername( username, options );
+            if( docs ){
+                docs = [ docs ];
             }
         } else {
-            logger.error( 'byUsername() ahInstance not found', instanceName );
+            const collection = ahInstance.collection();
+            if( !collection || !( collection instanceof Mongo.Collection )){
+                logger.error( 'expects collection be an instance of Mongo.Collection, got', collection, 'throwing...' );
+            throw new Error( 'Bad argument: collection' );
+            }
+            docs = await collection.find( ahInstance.usernameSelector( username ), options ).fetchAsync();
+        }
+        if( docs && docs.length > 1 ){
+            logger.error( 'expects username be an account identifier, but got', docs.length, 'documents, throwing...' );
+            throw new Error( 'Bad argument: account' );
+        }
+        if( docs && docs.length ){
+            result = AccountsHub.s.cleanupUserDocument( docs[0] );
         }
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byUsername('+username+')', result );
         return result;

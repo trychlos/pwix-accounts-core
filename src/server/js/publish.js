@@ -2,15 +2,28 @@
  * pwix:accounts-hub/src/server/js/publish.js
  */
 
+import _ from 'lodash';
+
 import { Logger } from 'meteor/pwix:logger';
 
 const logger = Logger.get();
 
 // returns a cursor of all accounts in the named collection
 Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
+    // checks
+    if( !instanceName || !_.isString( instanceName )){
+        logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
+        throw new Error( 'Bad argument: instanceName' );
+    }
     const ahInstance = AccountsHub.getInstance( instanceName );
+    if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
+        logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, '(instanceName='+instanceName+') throwing...' );
+        throw new Error( 'Bad argument: ahInstance' );
+    }
+
+    // publish
     const self = this;
-    //logger.debug( 'subscribing to', instanceName );
+    //logger.debug( 'subscribing to', instanceName, Date.now());
 
     // @param {Object} item the Record item
     // @returns {Object} item the transformed item
@@ -25,39 +38,35 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
         return item;
     };
 
-    if( ahInstance && ahInstance instanceof AccountsHub.ahClass ){
-        //if( !await AccountsManager.isAllowed( 'pwix.accounts_hub.feat.list', self.userId, { ahInstance: ahInstance } )){
-        //    return false;
-        //}
-        let initializing = true;
+    // at the moment AccountsHub doesn't manage permissions - is it really safe ??
+    //if( !await AccountsManager.isAllowed( 'pwix.accounts_hub.feat.list', self.userId, { ahInstance: ahInstance } )){
+    //    return false;
+    //}
+    let initializing = true;
 
-        const observer = ahInstance.collection().find().observeAsync({
-            added: async function( item ){
-                const transformed = await f_transform( item );
-                self.added( ahInstance.collectionName(), item._id, transformed );
-            },
-            changed: async function( newItem, oldItem ){
-                if( !initializing ){
-                    const transformed = await f_transform( newItem );
-                    self.changed( ahInstance.collectionName(), newItem._id, transformed );
-                }
-            },
-            removed: async function( oldItem ){
-                self.removed( ahInstance.collectionName(), oldItem._id );
+    const observer = ahInstance.collection().find().observeAsync({
+        added: async function( item ){
+            const transformed = await f_transform( item );
+            self.added( ahInstance.collectionName(), item._id, transformed );
+        },
+        changed: async function( newItem, oldItem ){
+            if( !initializing ){
+                const transformed = await f_transform( newItem );
+                self.changed( ahInstance.collectionName(), newItem._id, transformed );
             }
-        });
+        },
+        removed: async function( oldItem ){
+            self.removed( ahInstance.collectionName(), oldItem._id );
+        }
+    });
 
-        initializing = false;
+    initializing = false;
 
-        self.onStop( function(){
-            //logger.debug( 'stopping', instanceName );
-            observer.then(( handle ) => { handle.stop(); });
-        });
+    self.onStop( function(){
+        //logger.debug( 'stopping', instanceName );
+        observer.then(( handle ) => { handle.stop(); });
+    });
 
-        self.ready();
-
-    } else {
-        logger.warn( 'pwix_accounts_hub_list_all: unknown or invalid instance name', instanceName );
-        return false;
-    }
+    self.ready();
+    //logger.debug( 'publication ready', instanceName, Date.now());
 });
