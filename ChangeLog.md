@@ -9,6 +9,7 @@
     - Improve configure() warns when a key doesn't exist
     - Improve installation instructions
     - Use pwix:logger universal logger, thus bumping minor candidate version number
+    - Define a ready() reactive data source
 
 ### 1.3.0
 

@@ -60,6 +60,7 @@ AccountsHub.getByTabularName = function( name ){
  * @param {ahClass} instance
  * @returns {ahClass} the named ahClass instance, or null
  *  A reactive data source
+ *  As a setter, this function is only called by the ahClass constructor.
  */
 AccountsHub.getInstance = function( name, instance ){
     logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'getInstance()', arguments );
@@ -69,6 +70,7 @@ AccountsHub.getInstance = function( name, instance ){
         AccountsHub._instances.data[name] = instance;
         AccountsHub._instances.dep.changed();
     } else {
+        logger.debug( 'getInstance()', AccountsHub._instances.data );
         instance = AccountsHub._instances.data[name] || null;
         AccountsHub._instances.dep.depend();
     }

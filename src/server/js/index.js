@@ -9,3 +9,6 @@ import './functions.js';
 import './methods.js';
 import './publish.js';
 import './users-accounts.js';
+
+// on server side, the package is now fully evaluated, so ready
+AccountsHub.ready( true );

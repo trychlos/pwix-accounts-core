@@ -375,7 +375,7 @@ export class ahClass {
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahClass.ahClass()', arguments );
         this.#args = args;
         this.#opts = new ahOptions( args );
-        //logger.debug( 'pwix:accounts-hub instanciating', this.name(), args );
+        //logger.debug( 'instanciating', this.name(), args );
 
         // if the name is already instanciated, then just return it
         const instance = AccountsHub.getInstance( this.name());
@@ -396,6 +396,9 @@ export class ahClass {
         }
         // and (on the server) deny all client-side direct updates
         this._deny();
+
+        // timestamp to verify the received data on HMR
+        this._stamp = Date.now();
 
         // register this new instance
         AccountsHub.getInstance( this.name(), this );

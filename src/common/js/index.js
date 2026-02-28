@@ -11,6 +11,7 @@ import { ahOptions } from '../classes/ah-options.class.js';
 import './configure.js';
 import './functions.js';
 import './i18n.js';
+import './ready.js';
 import './startup.js';
 
 AccountsHub.ahClass = ahClass;
