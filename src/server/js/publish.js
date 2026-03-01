@@ -23,7 +23,7 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
 
     // publish
     const self = this;
-    //logger.debug( 'subscribing to', instanceName, Date.now());
+    //logger.debug( 'subscribing to', instanceName, Date.now(), self );
 
     // @param {Object} item the Record item
     // @returns {Object} item the transformed item
@@ -33,6 +33,11 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
         const fn = ahInstance.serverAllExtend();
         if( fn ){
             await fn( instanceName, item, self.userId );
+        }
+        if( Package['pwix:roles'] ){
+            const roles = await Package['pwix:roles'].Roles.allRolesForUser( item, self.userId );
+            //logger.debug( 'roles', roles );
+            item.DYN.roles = roles;
         }
         AccountsHub.s.addUndef( instanceName, item );
         return item;
