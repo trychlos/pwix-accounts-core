@@ -12,6 +12,7 @@
     - Define a ready() reactive data source
     - Have a guard against having both autoUsers=true and pwix:accounts-manager package
     - Remove assert() tests, replacing with logger.error() for debugging facility
+    - Introduce email address and username cardinalities
 
 ### 1.3.0
 

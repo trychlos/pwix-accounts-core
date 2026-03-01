@@ -3,6 +3,11 @@
  */
 
 AccountsHub.C = {
+    // cardinality
+    Cardinality: {
+        ILLIMITED: 'ILLIMITED'
+    },
+
     // whether email address (resp. username) is used by the application
     Identifier: {
         NONE:      'NONE',

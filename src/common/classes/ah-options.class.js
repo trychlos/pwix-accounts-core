@@ -18,6 +18,10 @@ export class ahOptions extends Options.Base {
         haveEmailAddress: AccountsHub.C.Identifier.MANDATORY,
         haveUsername: AccountsHub.C.Identifier.NONE,
         informWrongEmail: AccountsHub.C.WrongEmail.ERROR,
+        maxEmailAddressesCount: 1,
+        minEmailAddressesCount: 1,
+        maxUsernamesCount: 0,
+        minUsernamesCount: 0,
         name: 'users',
         onSignin: Meteor.loginWithPassword,
         passwordLength: 10,
@@ -26,6 +30,11 @@ export class ahOptions extends Options.Base {
         sendVerificationEmail: true,
         usernameLength: 6
     };
+
+    // possible cardinalities
+    static Cardinalities = [
+        AccountsHub.C.Cardinality.ILLIMITED
+    ];
 
     // have email address / username
     static Identifiers = [
@@ -121,6 +130,46 @@ export class ahOptions extends Options.Base {
      */
     informWrongEmail( value ){
         return this.base_gsStringFn( 'informWrongEmail', value, { default: ahOptions._defaults.informWrongEmail, ref: ahOptions.WrongEmail });
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Integer|String|Function} value the maximum email addresses count, defaulting to 1
+     * @returns {String}
+     */
+    maxEmailAddressesCount( value ){
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.maxEmailAddressesCount()', arguments );
+        return this.base_gsIntegerStringFn( 'maxEmailAddressesCount', value, { default: ahOptions._defaults.maxEmailAddressesCount, ref: ahOptions.Cardinalities });
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Integer|String|Function} value the minimum email addresses count, defaulting to 1
+     * @returns {String}
+     */
+    minEmailAddressesCount( value ){
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.minEmailAddressesCount()', arguments );
+        return this.base_gsIntegerFn( 'minEmailAddressesCount', value, { default: ahOptions._defaults.minEmailAddressesCount });
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Integer|String|Function} value the maximum usernames count, defaulting to 1
+     * @returns {String}
+     */
+    maxUsernamesCount( value ){
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.maxUsernamesCount()', arguments );
+        return this.base_gsIntegerStringFn( 'maxUsernamesCount', value, { default: ahOptions._defaults.maxUsernamesCount, ref: ahOptions.Cardinalities });
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Integer|String|Function} value the minimum email addresses count, defaulting to 1
+     * @returns {String}
+     */
+    minUsernamesCount( value ){
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.minUsernamesCount()', arguments );
+        return this.base_gsIntegerFn( 'minUsernamesCount', value, { default: ahOptions._defaults.minUsernamesCount });
     }
 
     /**

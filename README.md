@@ -53,7 +53,7 @@ This class is expected to be instanciated once by the application for each of th
 
 - `ahClass( args<Object> ): ahClass`
 
-The class constructor is called with an object as argument, with following keys:
+    The class constructor is called with an object as argument, with following keys:
 
     - `name`
 
@@ -174,6 +174,30 @@ The class constructor is called with an object as argument, with following keys:
     - `collection`
 
         The name of the underlying Mongo collection, defaulting to `name`
+
+    Starting with v1.4, both email addresses and usernames can have minimum and maximum cardinalities, thus extending `haveEmailAddress` and `haveUsername` semantics with:
+
+    - `minEmailAddressesCount`
+    - `maxEmailAddressesCount`
+    - `minUsernamesCount`
+    - `maxUsernamesCount`
+
+    These parameters determines minimum and maximum email addresses and usernames count. They are read as follow:
+
+    - when specified, minimum count must be an integer
+
+    - when specified, maximum count can an integer or the constant value `AccountsHub.C.Cardinality.ILLIMITED`
+
+    - minimum must be less or equal to maximum.
+
+    Defaults are:
+
+    - `minEmailAddressesCount`: 1
+    - `maxEmailAddressesCount`: 1
+    - `minUsernamesCount`: 0
+    - `maxUsernamesCount`: 0
+
+    When they are specified, then the corresponding `haveEmailAddress`, resp. `haveUsername`, is ignored. A warning is emitted if they are specified.
 
 - `async byEmailAddress( email [, options ]): Promise<ahClass|null>`
 
