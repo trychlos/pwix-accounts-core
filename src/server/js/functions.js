@@ -13,9 +13,9 @@ import { ahOptions } from '../../common/classes/ah-options.class.js';
 const logger = Logger.get();
 
 AccountsHub.s = {
-
     /*
      * @summary Make sure all the fields of the fieldset are set in the item, even if undefined
+     *  This is needed so that we can remove a field when updating an account instead of having a special function to remove that field
      * @param {Object} item
      * @returns {Object} item
      */
@@ -39,6 +39,7 @@ AccountsHub.s = {
      *  As a reminder, see https://v3-docs.meteor.com/api/accounts.html#Meteor-users
      *                 and https://v3-docs.meteor.com/api/accounts.html#passwords
      *                 and https://v3-docs.meteor.com/api/accounts.html#Accounts-findUserByEmail
+     * 
      *  Each email address can only belong to one user
      *  In other words, an email address can be considered as a user identiier in Meteor ecosystems
      */
@@ -76,15 +77,11 @@ AccountsHub.s = {
             }
             docs = await collection.find( ahInstance.emailSelector( email ), options ).fetchAsync();
         }
-<<<<<<< HEAD
-        if( docs && docs.length === 1 && docs[0] ){
-=======
         if( docs && docs.length > 1 ){
             logger.error( 'expects email address be an account identifier, but got', docs.length, 'documents, throwing...' );
             throw new Error( 'Bad argument: account' );
         }
         if( docs && docs.length ){
->>>>>>> 6aee82e (tt)
             result = AccountsHub.s.cleanupUserDocument( docs[0] );
         }
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.SERVER }, 'byEmailAddress('+email+'):', result );
@@ -184,6 +181,7 @@ AccountsHub.s = {
 
     /**
      * @locus Server
+     * @summary Remove from the to-be-returned user document fields which are considered as too sensitive to be sent to the client
      * @param {Object} document
      * @returns {Object} the cleaned-up user document
      *
@@ -203,16 +201,22 @@ AccountsHub.s = {
      * 
      * Note: do NOT expose this function in client-side world. This would be a security risk as a malicious user could just override it.
      */
+    sensitiveFields: [
+        'services.resume',
+        'services.password',
+        'profile'
+    ],
     cleanupUserDocument( user ){
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'cleanupUserDocument()', arguments );
         if( user ){
-            if( user.services ){
-                delete user.services.resume;
-                if( user.services.password ){
-                    delete user.services.password.bcrypt;
+            AccountsHub.s.sensitiveFields.forEach(( it ) => {
+                let o = user;
+                const words = it.split( '.' );
+                for( let i=0 ; i<words.length-1 ; ++i ){
+                    o = o[words[i]];
                 }
-            }
-            delete user.profile;
+                delete o[words[words.length-1]];
+            });
         }
         return user;
     }

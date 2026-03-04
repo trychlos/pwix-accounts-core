@@ -4,6 +4,8 @@
  * This class manages the global configuration options.
  */
 
+import _ from 'lodash';
+
 import { Logger } from 'meteor/pwix:logger';
 import { Options } from 'meteor/pwix:options';
 
@@ -15,6 +17,7 @@ export class ahOptions extends Options.Base {
     //
 
     static _defaults = {
+        allowFn: null,
         haveEmailAddress: AccountsHub.C.Identifier.MANDATORY,
         haveUsername: AccountsHub.C.Identifier.NONE,
         informWrongEmail: AccountsHub.C.WrongEmail.ERROR,
@@ -90,6 +93,16 @@ export class ahOptions extends Options.Base {
         logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.ahOptions()', arguments );
         super( options );
         return this;
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Function} fn the allowFn function
+     * @returns {Function}
+     */
+    allowFn( fn ){
+        logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.FUNCTIONS }, 'ahOptions.allowFn()', arguments );
+        return this.base_gsFn( 'allowFn', fn, { default: ahOptions._defaults.allowFn, check: ( fn ) => { return !fn || _.isFunction( fn )}});
     }
 
     /**

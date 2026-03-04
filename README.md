@@ -61,6 +61,23 @@ This class is expected to be instanciated once by the application for each of th
 
         Defaults to 'users' and thus addresses the standard Meteor 'users' collection.
 
+    - `allowFn`
+
+        An async function which will be called with an action string identifier, and must return whether the current user is allowed to do the specified action.
+
+        If the function is not provided, then the default is to **allow** all actions (and do you really want that ?).
+
+        `allowFn` prototype is: `async allowFn( action<String>, userId<String>, { instance: <ahClass> [, ...<Any> ] }): Boolean`, where:
+        
+        - `userId` is the identifier of the requester user.
+        - `instance` is an instance of `AccountsHub.ahClass`.
+
+        Since v1.4.
+
+    - `collection`
+
+        The name of the underlying Mongo collection, defaulting to the name of the instance.
+
     - `haveEmailAddress`
     - `haveUsername`
 
@@ -97,6 +114,30 @@ This class is expected to be instanciated once by the application for each of th
         - `AccountsHub.C.WrongEmail.ERROR`: say the user that something went wrong (Meteor standard behavior).
 
         Defaults to `AccountsHub.C.WrongEmail.ERROR`.
+
+    - `minEmailAddressesCount`
+    - `maxEmailAddressesCount`
+    - `minUsernamesCount`
+    - `maxUsernamesCount`
+
+        These parameters extend `haveEmailAddress` and `haveUsername` semantics to determine minimum and maximum email addresses and usernames count. They are read as follow:
+
+        - when specified, minimum count must be an integer
+        - when specified, maximum count can an integer or the constant value `AccountsHub.C.Cardinality.ILLIMITED`
+        - minimum must be less or equal to maximum.
+
+        Defaults are:
+
+        - `minEmailAddressesCount`: 1
+        - `maxEmailAddressesCount`: 1
+        - `minUsernamesCount`: 0
+        - `maxUsernamesCount`: 0
+
+        When they are specified, then the corresponding `haveEmailAddress`, resp. `haveUsername`, is ignored. A warning is emitted if they are specified.
+
+        Since v1.4.
+
+        **Whatever pre-v1.4 or post-v1.4 system you use, you MUST take care of having a user account identifier, either an email addresse or a username.**
 
     - `onSignin`
 
@@ -171,34 +212,6 @@ This class is expected to be instanciated once by the application for each of th
 
         Defaults to six (6) characters.
 
-    - `collection`
-
-        The name of the underlying Mongo collection, defaulting to `name`
-
-    Starting with v1.4, both email addresses and usernames can have minimum and maximum cardinalities, thus extending `haveEmailAddress` and `haveUsername` semantics with:
-
-    - `minEmailAddressesCount`
-    - `maxEmailAddressesCount`
-    - `minUsernamesCount`
-    - `maxUsernamesCount`
-
-    These parameters determines minimum and maximum email addresses and usernames count. They are read as follow:
-
-    - when specified, minimum count must be an integer
-
-    - when specified, maximum count can an integer or the constant value `AccountsHub.C.Cardinality.ILLIMITED`
-
-    - minimum must be less or equal to maximum.
-
-    Defaults are:
-
-    - `minEmailAddressesCount`: 1
-    - `maxEmailAddressesCount`: 1
-    - `minUsernamesCount`: 0
-    - `maxUsernamesCount`: 0
-
-    When they are specified, then the corresponding `haveEmailAddress`, resp. `haveUsername`, is ignored. A warning is emitted if they are specified.
-
 - `async byEmailAddress( email [, options ]): Promise<ahClass|null>`
 
 Returns a Promise which will resolve to the cleaned up document of the unique user which holds the provided email address, or null if none or several (which would be a bug anyway).
@@ -255,8 +268,8 @@ Parameters are:
 
 - `opts`: an optional options object with following keys:
 
-    - `disabled`: whether the selection component should be disabled, defaulting to false
-    - `selectOptions`: additional configuration options for (multiple-select) selection component
+    - `disabled`: whether the selection component should be disabled, defaulting to `false`
+    - `selectOptions`: additional configuration options for `multiple-select` selection component
     - `instance`: the name of the accounts instance, defaulting to 'users'
     - `select_ph`: the select component placeholder, defaulting to (localized) 'Select the desired accounts'
     - `dialog_title`: the dialog title, defaulting to (localized) 'Select one or more user accounts'
@@ -285,6 +298,16 @@ This method returns the `pwix:i18n` namespace of the `pwix:accounts-hub` package
 
 With that name, anyone is so able to provide additional translations.
 
+##### `AccountsHub.isAllowed()`
+
+Manages permissions to the accounts.
+
+Prototype is `async AccountsHub.isAllowed( action<String>, userId<String>, args<Object> ): Boolean`.
+
+The provided `args` argument MUST contain an `instance` key with an instance of `AccountsHub.ahClass` or the name of such a class.
+
+Available both on the client and the server.
+
 ## Blaze components
 
 ### `ahPreferredLabel`
@@ -304,6 +327,17 @@ It accepts following data context:
 - `ahUserId`
 
     The identifier of the user to be considered.
+
+## Permissions management
+
+This package can take advantage of `pwix:permissions` package to manage the user permissions.
+
+It defines following tasks:
+
+- `pwix.accounts_hub.feat.list`: display all accounts, with additional arguments as an object with following keys:
+    - instance: the `ahClass` instance, or the name of the `ahClass` instance
+
+Please remind that default is to allow all actions which are not provided.
 
 ## Configuration
 

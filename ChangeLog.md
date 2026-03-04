@@ -14,6 +14,7 @@
     - Remove assert() tests, replacing with logger.error() for debugging facility
     - Introduce email address and username cardinalities
     - 'pwix_accounts_hub_list_all' now published also full roles of the target users
+    - Introduce permissions control with 'allowFn' parameter
 
 ### 1.3.0
 

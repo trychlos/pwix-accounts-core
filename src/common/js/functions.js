@@ -83,3 +83,43 @@ AccountsHub.getInstance = function( name, instance ){
     }
     return instance;
 }
+
+/**
+ * @param {String} action
+ * @param {String} userId
+ * @param {Any} args an object with following keys:
+ *  - instance:
+ *    > either a string which is an ahClass instance name
+ *    > or the ahClass instance itself.
+ * @returns {Boolean} true if the current user is allowed to do the action
+ *  NB: default is to allow all if task action is not provided
+ */
+AccountsHub.isAllowed = async function( action, userId=null, args={} ){
+    if( !action || !_.isString( action )){
+        logger.error( 'isAllowed() expects \'action\' be a non-empty string, got', action, 'throwing...' );
+        throw new Error( 'Bad argument: action' );
+    }
+    if( !args.instance || ( !_.isString( args.instance ) && !( args.instance instanceof AccountsHub.ahClass ))){
+        logger.error( 'isAllowed() expects \'instance\' be a string or an instance of AccountsHub.ahClass, got', args.instance, 'throwing...' );
+        throw new Error( 'Bad argument: instance' );
+    }
+    if( !userId ){
+        return false;
+    }
+    //logger.debug( 'arguments', arguments );
+    let ahInstance = args.instance;
+    if( _.isString( ahInstance )){
+        ahInstance = AccountsHub.getInstance( ahInstance );
+    }
+    if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
+        logger.error( 'isAllowed() expects \'ahInstance\' be an instance of AccountsHub.ahClass, got', ahInstance, 'throwing...' );
+        throw new Error( 'Bad argument: ahInstance' );
+    }
+    let allowed = true;
+    const fn = ahInstance.opts().allowFn();
+    if( fn ){
+        args.instance = ahInstance;
+        allowed = await fn( ...arguments );
+    }
+    return allowed;
+}

@@ -10,6 +10,8 @@ const logger = Logger.get();
 
 // returns a cursor of all accounts in the named collection
 Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
+    const self = this;
+    //logger.debug( 'subscribing to', instanceName, Date.now(), self );
     // checks
     if( !instanceName || !_.isString( instanceName )){
         logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
@@ -20,10 +22,11 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
         logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, '(instanceName='+instanceName+') throwing...' );
         throw new Error( 'Bad argument: ahInstance' );
     }
-
-    // publish
-    const self = this;
-    //logger.debug( 'subscribing to', instanceName, Date.now(), self );
+    // is the user allowed to list accounts ?
+    if( !await AccountsHub.isAllowed( 'pwix.accounts_hub.feat.list', self.userId, { instance: ahInstance } )){
+        self.ready();
+        return false;
+    }
 
     // @param {Object} item the Record item
     // @returns {Object} item the transformed item
@@ -43,10 +46,6 @@ Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
         return item;
     };
 
-    // at the moment AccountsHub doesn't manage permissions - is it really safe ??
-    //if( !await AccountsManager.isAllowed( 'pwix.accounts_hub.feat.list', self.userId, { ahInstance: ahInstance } )){
-    //    return false;
-    //}
     let initializing = true;
 
     const observer = ahInstance.collection().find().observeAsync({
