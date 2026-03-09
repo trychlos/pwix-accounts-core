@@ -15,6 +15,7 @@
     - Introduce email address and username cardinalities
     - 'pwix_accounts_hub_list_all' now published also full roles of the target users
     - Introduce permissions control with 'allowFn' parameter
+    - Replace multiple-select NPM module with multiple-select-vanilla
 
 ### 1.3.0
 
