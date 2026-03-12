@@ -16,6 +16,7 @@
     - 'pwix_accounts_hub_list_all' now published also full roles of the target users
     - Introduce permissions control with 'allowFn' parameter
     - Replace multiple-select NPM module with multiple-select-vanilla
+    - Update to pwix:modal v2.5
 
 ### 1.3.0
 

@@ -104,7 +104,7 @@ Template.ah_select_dialog.onRendered( function(){
     // set the modal target
     self.autorun(() => {
         if( self.AH.isModal.get()){
-            Modal.set({
+            Modal.topmost().set({
                 target: self.$( '.ah-select-dialog' )
             });
         }
@@ -144,7 +144,7 @@ Template.ah_select_dialog.events({
     'iz-submit .ah-select-dialog'( event, instance ){
         const closeFn = function(){
             if( instance.AH.isModal.get()){
-                Modal.close();
+                Modal.topmost().close();
             }
         }
         // set the reactive var
