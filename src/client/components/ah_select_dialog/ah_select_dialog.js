@@ -54,7 +54,7 @@ Template.ah_select_dialog.onCreated( function(){
         const name = Template.currentData().instance || 'users';
         const ahInstance = AccountsHub.getInstance( name );
         if( ahInstance ){
-            self.AH.handle.set( self.subscribe( 'pwix_accounts_hub_list_all', name ));
+            self.AH.handle.set( self.subscribe( 'pwix.AccountsHub.p.listAll', name ));
         } else {
             logger.warn( 'unknown AccountsHub.ahClass instance', name );
         }

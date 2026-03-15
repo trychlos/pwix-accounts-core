@@ -9,7 +9,7 @@ import { Logger } from 'meteor/pwix:logger';
 const logger = Logger.get();
 
 // returns a cursor of all accounts in the named collection
-Meteor.publish( 'pwix_accounts_hub_list_all', async function( instanceName ){
+Meteor.publish( 'pwix.AccountsHub.p.listAll', async function( instanceName ){
     const self = this;
     //logger.debug( 'subscribing to', instanceName, Date.now(), self );
     // checks

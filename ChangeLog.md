@@ -13,10 +13,11 @@
     - Have a guard against having both autoUsers=true and pwix:accounts-manager package
     - Remove assert() tests, replacing with logger.error() for debugging facility
     - Introduce email address and username cardinalities
-    - 'pwix_accounts_hub_list_all' now published also full roles of the target users
+    - 'pwix.AccountsHub.p.listAll' now published also full roles of the target users
     - Introduce permissions control with 'allowFn' parameter
     - Replace multiple-select NPM module with multiple-select-vanilla
     - Update to pwix:modal v2.5
+    - Make sure methods and publications are prefixed with a full namespace
 
 ### 1.3.0
 

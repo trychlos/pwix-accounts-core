@@ -418,7 +418,7 @@ export class ahClass {
             logger.error( 'expects options be an object if set, got', options, 'throwing...' );
             throw new Error( 'Bad argument: options' );
         }
-        return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byEmailAddress', this.name(), email, options ) : await AccountsHub.s.byEmailAddress( this.name(), email, options );
+        return Meteor.isClient ? await Meteor.callAsync( 'pwix.AccountsHub.m.byEmailAddress', this.name(), email, options ) : await AccountsHub.s.byEmailAddress( this.name(), email, options );
     }
 
     /**
@@ -437,7 +437,7 @@ export class ahClass {
             logger.error( 'expects options be an object if set, got', options, 'throwing...' );
             throw new Error( 'Bad argument: options' );
         }
-        return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byId', this.name(), id, options ) : await AccountsHub.s.byId( this.name(), id, options );
+        return Meteor.isClient ? await Meteor.callAsync( 'pwix.AccountsHub.m.byId', this.name(), id, options ) : await AccountsHub.s.byId( this.name(), id, options );
     }
 
     /**
@@ -456,7 +456,7 @@ export class ahClass {
             logger.error( 'expects options be an object if set, got', options, 'throwing...' );
             throw new Error( 'Bad argument: options' );
         }
-        return Meteor.isClient ? await Meteor.callAsync( 'AccountsHub.byUsername', this.name(), username, options ) : await AccountsHub.s.byUsername( this.name(), username, options );
+        return Meteor.isClient ? await Meteor.callAsync( 'pwix.AccountsHub.m.byUsername', this.name(), username, options ) : await AccountsHub.s.byUsername( this.name(), username, options );
     }
 
     /**
