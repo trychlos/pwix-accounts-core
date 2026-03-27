@@ -1,8 +1,8 @@
-# pwix:accounts-hub
+# pwix:accounts-core
 
 ## ChangeLog
 
-### 1.4.0-rc.0
+### 2.0.0-rc.0
 
     Release date: 
 
@@ -15,9 +15,13 @@
     - Introduce email address and username cardinalities
     - 'pwix.AccountsHub.p.listAll' now published also full roles of the target users
     - Introduce permissions control with 'allowFn' parameter
-    - Replace multiple-select NPM module with multiple-select-vanilla
-    - Update to pwix:modal v2.5
     - Make sure methods and publications are prefixed with a full namespace
+    - AccountsHub is renamed AccountsCore, API interface is deeply reviewed, thus bumping major candidate version number
+    - Remove unused 'onSignin' class argument
+    - Define AccountsCore.byAnyIdentifier() besides of AccountsCore.byEmailAddress(), AccountsCore.byId() and AccountsCore.byUsername()
+    - Remove unused 'sendVerificationEmail' class argument
+    - ahPreferredLabel Blaze component is renamed to acPreferredLabel
+    - Move accounts selection dialog to AccountsManager, removing relevant dependencies
 
 ### 1.3.0
 

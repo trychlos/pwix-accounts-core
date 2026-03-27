@@ -1,6 +1,6 @@
 /*
- * pwix:accounts-hub/src/common/js/global.js
+ * pwix:accounts-core/src/common/js/global.js
  */
 
-AccountsHub = {
+AccountsCore = {
 };

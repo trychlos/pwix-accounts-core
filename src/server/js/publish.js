@@ -1,29 +1,27 @@
 /*
- * pwix:accounts-hub/src/server/js/publish.js
+ * pwix:accounts-core/src/server/js/publish.js
  */
 
 import _ from 'lodash';
 
+import { check, Match } from 'meteor/check';
 import { Logger } from 'meteor/pwix:logger';
 
 const logger = Logger.get();
 
 // returns a cursor of all accounts in the named collection
-Meteor.publish( 'pwix.AccountsHub.p.listAll', async function( instanceName ){
+Meteor.publish( AccountsCore.C.pub.listAll.name, async function( instanceName, opts={} ){
     const self = this;
-    //logger.debug( 'subscribing to', instanceName, Date.now(), self );
-    // checks
-    if( !instanceName || !_.isString( instanceName )){
-        logger.error( 'expects instanceName be a non-empty string, got', instanceName, 'throwing...' );
-        throw new Error( 'Bad argument: instanceName' );
-    }
-    const ahInstance = AccountsHub.getInstance( instanceName );
-    if( !ahInstance || !( ahInstance instanceof AccountsHub.ahClass )){
-        logger.error( 'expects ahInstance be an instance of AccountsHub.ahClass, got', ahInstance, '(instanceName='+instanceName+') throwing...' );
-        throw new Error( 'Bad argument: ahInstance' );
+    check( instanceName, Match.NonEmptyString );
+    const acInstance = AccountsCore.getInstance( instanceName );
+    check( acInstance, Match.OneOf( null, AccountsCore.acAccount ));
+    if( !acInstance ){
+        logger.warning( AccountsCore.C.pub.listAll.name, 'unable to find an acAccount instance for name=\''+instanceName+'\'' );
+        self.ready();
+        return false;
     }
     // is the user allowed to list accounts ?
-    if( !await AccountsHub.isAllowed( 'pwix.accounts_hub.feat.list', self.userId, { instance: ahInstance } )){
+    if( !await AccountsCore.isAllowed( AccountsCore.C.pub.listAll.permission, self.userId, { instance: acInstance } )){
         self.ready();
         return false;
     }
@@ -31,36 +29,28 @@ Meteor.publish( 'pwix.AccountsHub.p.listAll', async function( instanceName ){
     // @param {Object} item the Record item
     // @returns {Object} item the transformed item
     const f_transform = async function( item ){
-        item.DYN = {};
-        item.DYN.preferredLabel = await ahInstance.preferredLabel( item );
-        const fn = ahInstance.serverAllExtend();
-        if( fn ){
-            await fn( instanceName, item, self.userId );
+        const transforms = acInstance.transformsPublish( AccountsCore.C.pub.listAll.name );
+        for( const fn of ( transforms || [] )){
+            item = await fn( acInstance, item, opts, self.userId );
         }
-        if( Package['pwix:roles'] ){
-            const roles = await Package['pwix:roles'].Roles.allRolesForUser( item, self.userId );
-            //logger.debug( 'roles', roles );
-            item.DYN.roles = roles;
-        }
-        AccountsHub.s.addUndef( instanceName, item );
         return item;
     };
 
     let initializing = true;
 
-    const observer = ahInstance.collection().find().observeAsync({
+    const observer = acInstance.collection().find().observeAsync({
         added: async function( item ){
             const transformed = await f_transform( item );
-            self.added( ahInstance.collectionName(), item._id, transformed );
+            self.added( acInstance.opts().collection(), item._id, transformed );
         },
         changed: async function( newItem, oldItem ){
             if( !initializing ){
                 const transformed = await f_transform( newItem );
-                self.changed( ahInstance.collectionName(), newItem._id, transformed );
+                self.changed( acInstance.opts().collection(), newItem._id, transformed );
             }
         },
         removed: async function( oldItem ){
-            self.removed( ahInstance.collectionName(), oldItem._id );
+            self.removed( acInstance.opts().collection(), oldItem._id );
         }
     });
 

@@ -1,12 +1,20 @@
-# pwix:accounts-hub - README
+# pwix:accounts-core - README
 
 ## What is it ?
 
-Configurations, functions and tools both used by `pwix:accounts-ui` and `pwix:accounts-manager`, gathered here to help the accounts management.
+Configurations, functions and tools used by both `pwix:accounts-ui` and `pwix:accounts-manager`, gathered here to help and mutualize the accounts management.
 
-_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createUser will fail". We so consider in this package first, and more globally in our applications, that both the email address and the username can be used as a - case insensitive - user account identifier.
+_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createUser will fail". We so consider in this package first, and more globally in all our applications, that both the email address and the username can be used as a - case insensitive - user account identifier.
 
-`pwix:accounts-hub` let the caller manage several instance of accounts collections, each of them being stored in distinct storages, and configured in distinct ways.
+`pwix:accounts-core` provides following features:
+
+- let the caller manage several instance of accounts collections, each of them being stored in distinct storages, and configured in distinct ways
+
+- define email addresses and usernames minimum and maximum cardinalities
+
+- define a preferred label when about to display a user identity.
+
+But, in its most sample flavor, `pwix:accounts-core` is just an thin encapsulation around the Meteor `accounts-base` package.
 
 ## Rationale
 
@@ -22,14 +30,14 @@ Meteor proposes a default standard 'users' accounts collection, and provides pac
 
 This is not very troublesome as long as we look at the user interface, or the collection schema, as they are easily overridable.
 
-But we enter in trouble as soon as we want take advantage of password reset, account enrollment or email verification workflows. These are so tied to the collection itself that it is not possible to configure them to use, for example, different templates or different callbacks.
+But we enter in trouble as soon as we want take advantage of password reset, account enrollment or email verification workflows for other accounts collections. These are so tied to the 'users' collection itself that it is not possible to configure them to use, for example, different templates or different callbacks on another collection.
 
 ## Installation
 
 This Meteor package is installable with the usual command:
 
 ```sh
-    meteor add pwix:accounts-hub
+    meteor add pwix:accounts-core
     meteor npm install email-validator lodash multiple-select zxcvbn --save
 ```
 
@@ -39,19 +47,23 @@ Just add the package to your application, and enjoy!
 
 ## What does it provide ?
 
-### `AccountsHub`
+### `AccountsCore`
 
-The exported `AccountsHub` global object provides following items:
+The exported `AccountsCore` global object provides following items:
 
 #### Classes
 
-##### `ahClass`
+##### `acAccount`
 
-This class is expected to be instanciated once by the application for each of the managed accounts entities. These instances must be all named. Other packages, such as `pwix-accounts-ui` and `pwix:accounts-manager` will all be able to use these named instances.
+The class doesn't extend the `Accounts` object from `accounts-base`, but encapsulates it to manage the configuration of our accounts.
+
+This class is expected to be instanciated once by the application for each of the managed accounts collections. These instances must all be named. Other packages, such as `pwix-accounts-ui` and `pwix:accounts-manager` for example, will so be able to use these named instances.
+
+But, for compatibility and simplicity reasons, doing nothing in your application will just instanciate and manage a `users` collection which happens to map to the standard `Meteor.users` collection.
 
 ###### Methods
 
-- `ahClass( args<Object> ): ahClass`
+- `acAccount( args<Object> ): acAccount`
 
     The class constructor is called with an object as argument, with following keys:
 
@@ -59,20 +71,36 @@ This class is expected to be instanciated once by the application for each of th
 
         The name of the instance.
 
-        Defaults to 'users' and thus addresses the standard Meteor 'users' collection.
+        Defaults to 'users' and thus addresses the standard `Meteor.users` collection.
 
     - `allowFn`
 
         An async function which will be called with an action string identifier, and must return whether the current user is allowed to do the specified action.
 
-        If the function is not provided, then the default is to **allow** all actions (and do you really want that ?).
+        If the function is not provided, then the default is to **allow** all actions.
 
-        `allowFn` prototype is: `async allowFn( action<String>, userId<String>, { instance: <ahClass> [, ...<Any> ] }): Boolean`, where:
+        `allowFn` prototype is: `async allowFn( action<String>, userId<String>, { instance: <AccountsCore.acAccount> [, ...<Any> ] }): Boolean`, where:
         
         - `userId` is the identifier of the requester user.
-        - `instance` is an instance of `AccountsHub.ahClass`.
+        - `instance` is an instance of `AccountsCore.acAccount`.
 
-        Since v1.4.
+        Since v2.0.
+
+    - `cleanRegexes`
+
+        A list of regular expressions that field must NOT match to be sent to the client.
+
+        It defaults to:
+
+        ```js
+            cleanRegexes: [
+                'resume',
+                'password',
+                'profile'
+            ]
+        ```
+
+        Since v2.0.
 
     - `collection`
 
@@ -85,35 +113,37 @@ This class is expected to be instanciated once by the application for each of th
 
         For each of these terms, accepted values are:
 
-        - `AccountsHub.C.Identifier.NONE`: the field is not displayed nor considered
-        - `AccountsHub.C.Identifier.OPTIONAL`: the field is proposed to the user, but may be left empty
-        - `AccountsHub.C.Identifier.MANDATORY`: the input field must be filled by the user
+        - `AccountsCore.C.Identifier.NONE`: the field is not displayed nor considered
+        - `AccountsCore.C.Identifier.OPTIONAL`: the field is proposed to the user, but may be left empty
+        - `AccountsCore.C.Identifier.MANDATORY`: the input field must be filled by the user
 
-        At least one of these fields MUST be set as `AccountsHub.C.Identifier.MANDATORY`. Else, the default value will be applied.
+        At least one of these fields MUST be set as `AccountsCore.C.Identifier.MANDATORY`. Else, the default value will be applied.
 
         Defauts to:
 
-        - `haveEmailAddress`: `AccountsHub.C.Identifier.MANDATORY`
-        - `haveUsername`: `AccountsHub.C.Identifier.NONE`
+        - `haveEmailAddress`: `AccountsCore.C.Identifier.MANDATORY`
+        - `haveUsername`: `AccountsCore.C.Identifier.NONE`
 
         Please be conscious that some features of your application may want display an identifier for each user. It would be a security hole to let the application display a verified email address anywhere, as this would be some sort of spam magnet!
+
+        Starting with v2.0, these two booleans are superseded by minimal and maximal cardinalities below.
 
     - `informWrongEmail`
 
         Whether to inform the user that the email address he/she has entered when asking for resetting a password is not known of our users database.
 
-        Rationale:
+        _Rationale:_
 
-            Meteor default is to return a `[403] Something went wrong. Please check your credentials.` error message.
+        Meteor default is to return a `[403] Something went wrong. Please check your credentials.` error message.
 
-            Some security guys consider that returning such error would let a malicious user to check which email addresses are registered - or not - in the accounts database, so would lead to a potential confidentiality break and information leak.
+        Some security guys consider that returning such error would let a malicious user to check which email addresses are registered - or not - in the accounts database, so would lead to a potential confidentiality break and information leak.
 
         This parameter let the application decide what to do:
 
-        - `AccountsHub.C.WrongEmail.OK`: say the user that the email has been sucessfully sent, even when this is not the case
-        - `AccountsHub.C.WrongEmail.ERROR`: say the user that something went wrong (Meteor standard behavior).
+        - `AccountsCore.C.WrongEmail.OK`: say the user that the email has been sucessfully sent, even when this is not the case, thus silently ignore the error
+        - `AccountsCore.C.WrongEmail.ERROR`: say the user that something went wrong (Meteor standard behavior).
 
-        Defaults to `AccountsHub.C.WrongEmail.ERROR`.
+        Defaults to `AccountsCore.C.WrongEmail.ERROR`.
 
     - `minEmailAddressesCount`
     - `maxEmailAddressesCount`
@@ -123,29 +153,21 @@ This class is expected to be instanciated once by the application for each of th
         These parameters extend `haveEmailAddress` and `haveUsername` semantics to determine minimum and maximum email addresses and usernames count. They are read as follow:
 
         - when specified, minimum count must be an integer
-        - when specified, maximum count can an integer or the constant value `AccountsHub.C.Cardinality.ILLIMITED`
+        - when specified, maximum count can an integer or the constant value `AccountsCore.C.Cardinality.ILLIMITED`
         - minimum must be less or equal to maximum.
 
         Defaults are:
 
         - `minEmailAddressesCount`: 1
-        - `maxEmailAddressesCount`: 1
+        - `maxEmailAddressesCount`: `AccountsCore.C.Cardinality.ILLIMITED`
         - `minUsernamesCount`: 0
         - `maxUsernamesCount`: 0
 
-        When they are specified, then the corresponding `haveEmailAddress`, resp. `haveUsername`, is ignored. A warning is emitted if they are specified.
+        Unless `haveEmailAddress` or `haveUsername` are specified, these new parameters take precedence other old ones.
 
-        Since v1.4.
+        Since v2.0.
 
-        **Whatever pre-v1.4 or post-v1.4 system you use, you MUST take care of having a user account identifier, either an email addresse or a username.**
-
-    - `onSignin`
-
-        A client-side function to be called when the managed account wants to log in.
-
-        Prototype of the function is `onSignin( userid<String>, credentials<Any> [, callback<Callback> ])`
-
-        Defaults to standard `Meteor.loginWithPassword()`.
+        **Whatever pre-v2.0 or post-v2.0 system you use, you MUST take care of having a user account identifier, either an email addresse or a username.**
 
     - `passwordLength`
 
@@ -161,17 +183,17 @@ This class is expected to be instanciated once by the application for each of th
 
         The minimal required password strength when setting a new password, either when creating a new account of when changing the password of an existing account.
 
-        `pwix:accounts-uhubi` makes use of the [zxcvbn](https://www.npmjs.com/package/zxcvbn) package to estimate the strength of entered passwords. The estimated strength can take folloging values:
+        `pwix:accounts-core` makes use of the [zxcvbn](https://www.npmjs.com/package/zxcvbn) package to estimate the strength of entered passwords. The estimated strength can take folloging values:
 
-        - `AccountsHub.C.Password.VERYWEAK`: too guessable, risky password (guesses < 10^3)
-        - `AccountsHub.C.Password.WEAK`: very guessable, protection from throttled online attacks (guesses < 10^6)
-        - `AccountsHub.C.Password.MEDIUM`: somewhat guessable, protection from unthrottled online attacks (guesses < 10^8)
-        - `AccountsHub.C.Password.STRONG`: safely unguessable, moderate protection from offline slow-hash scenario (guesses < 10^10)
-        - `AccountsHub.C.Password.VERYSTRONG`: very unguessable, strong protection from offline slow-hash scenario (guesses >= 10^10)
+        - `AccountsCore.C.Password.VERYWEAK`: too guessable, risky password (guesses < 10^3)
+        - `AccountsCore.C.Password.WEAK`: very guessable, protection from throttled online attacks (guesses < 10^6)
+        - `AccountsCore.C.Password.MEDIUM`: somewhat guessable, protection from unthrottled online attacks (guesses < 10^8)
+        - `AccountsCore.C.Password.STRONG`: safely unguessable, moderate protection from offline slow-hash scenario (guesses < 10^10)
+        - `AccountsCore.C.Password.VERYSTRONG`: very unguessable, strong protection from offline slow-hash scenario (guesses >= 10^10)
 
-        The package doesn't hardcodes by itself a minimal 'required strength', and so will accept even a minimal length of, say, `AccountsHub.C.Password.VERYWEAK`!
+        The package doesn't hardcodes by itself a minimal 'required strength', and so will accept even a minimal length of, say, `AccountsCore.C.Password.VERYWEAK`!
 
-        Defaults to `AccountsHub.C.Password.STRONG`.
+        Defaults to `AccountsCore.C.Password.STRONG`.
 
         **Please note that, for security reasons, you shouldn't set the password required strength less than this default, unless you are absolutely sure of what you are doing.**
 
@@ -179,30 +201,10 @@ This class is expected to be instanciated once by the application for each of th
 
         When not explicitely specified, which label choose to qualify a user account ? Following values are accepted:
 
-        - `AccountsHub.C.PreferredLabel.USERNAME`
-        - `AccountsHub.C.PreferredLabel.EMAIL_ADDRESS`
+        - `AccountsCore.C.PreferredLabel.USERNAME`
+        - `AccountsCore.C.PreferredLabel.EMAIL_ADDRESS`
 
-        Defaults to `AccountsHub.C.PreferredLabel.EMAIL_ADDRESS`, though the actually displayed label heavily depends of the runtime configuration as we try to always display something. At the last, the returned label may be nothing else than the document identifier.
-
-    - `sendVerificationEmail`
-
-        Whether to send a verification email to each newly created user.
-
-        This should be kept by the application consistent with the same parameter of `accounts-base` Meteor package.
-
-        Accepted values are `true` or `false`.
-
-        Defaults to `true`.
-
-        Please note that sending a verification email updates the Accounts collection, thus automatically set up `updatedAt`, `updatedBy` fields. If you ask where these updates come from, this is the first answer.
-
-    - `serverAllExtend`
-
-        A server-side function which comes to extend the content of the dataset published for the whole list.
-
-        The function get the current entity item as its unique argument and returns a Promise when finished with its job.
-
-        Defaults to `null`.
+        Defaults to `AccountsCore.C.PreferredLabel.EMAIL_ADDRESS`, though the actually displayed label heavily depends of the runtime configuration as we try to always display something. At the last, the returned label may be nothing else than the document identifier.
 
     - `usernameLength`
 
@@ -212,121 +214,216 @@ This class is expected to be instanciated once by the application for each of th
 
         Defaults to six (6) characters.
 
-- `async byEmailAddress( email [, options ]): Promise<ahClass|null>`
+- `async byAnyIdentifier( anyId<String>, options<Object> ): userDoc<Object>|null`
+- `async byEmailAddress( email<String>, options<Object> ): userDoc<Object>|null`
+- `async byId( userId<String>, options<Object> ): userDoc<Object>|null`
+- `async byUsername( username<String>, options<Object> ): userDoc<Object>|null`
 
-Returns a Promise which will resolve to the cleaned up document of the unique user which holds the provided email address, or null if none or several (which would be a bug anyway).
+    The function returns a Promise which will eventually resolve to the unique cleaned-up user document, or null.
 
-`options` is an optional dictionary of fields to return or exclude.
+- `async checkEmailAddress( email<String>, options<Object> ): true|false`
+- `async checkPassword( password<String>, options<Object> ): true|false`
+- `async checkUsername( emaikl<String>, options<Object> ): true|false`
 
-See also [findUserByEmail()](https://v3-docs.meteor.com/api/accounts.html#Accounts-findUserByEmail) Meteor function.`
+    Method equivalents of `AccountsCore.Checks.checkEmailAddress()`, `AccountsCore.Checks.checkEmailAddress()` and `AccountsCore.Checks.checkEmailAddress()` respectively.
 
-- `async byUsername( username [, options ]): Promise<ahClass|null>`
+- `emailAtLeastOne(): true|false`
+- `emailMayHaveOne(): true|false`
 
-Returns a Promise which will resolve to the cleaned up document of the unique user which holds the provided username, or null if none or several (which would be a bug anyway).
+    Whether we want at least one email address.
 
-`options` is an optional dictionary of fields to return or exclude.
 
-See also [findUserByUsername()](https://v3-docs.meteor.com/api/accounts.html#Accounts-findUserByUsername) Meteor function.`
+    Whether we may have one email address.
 
-- `async preferredLabel( id|user [, preferred] )`
+- `async preferredLabel( userId|userDocument [, preferred] )`
 
-The function returns a Promise which will eventually resolve to the result object.
-
-The result object has following keys:
+    The function returns a Promise which will eventually resolve to the result object:
 
     - `label`: the computed preferred label
 
-    - `origin`: the origin, which may be `ID` if the account has not been found, or `AccountsHub.C.PreferredLabel.USERNAME` or `AccountsHub.C.PreferredLabel.EMAIL_ADDRESS`.
+    - `origin`: the origin, which may be `ID` if the account has not been found, or `AccountsCore.C.PreferredLabel.USERNAME` or `AccountsCore.C.PreferredLabel.EMAIL_ADDRESS`.
 
-The application may have ask for either a username or an email address, or both.
-When time comes to display an identification string to the user, we need to choose between the username and the email address (if both apply), depending of the preference of the caller.
+    The application may have asked for either a username or an email address, or both.
 
-The caller preference is optional, may be one the following values:
+    When time comes to display an identification string to the user, we need to choose between the username and the email address (if both apply), depending of the preference of the caller.
 
-    - `AccountsHub.C.PreferredLabel.USERNAME`
-    - `AccountsHub.C.PreferredLabel.EMAIL_ADDRESS`
+    The caller preference is optional, may be one the following values:
 
-Default is the value configured at instanciation time.
+    - `AccountsCore.C.PreferredLabel.USERNAME`
+    - `AccountsCore.C.PreferredLabel.EMAIL_ADDRESS`
+
+    Default is the value configured at instanciation time.
+
+- `transformsPublish( instance<AccountsCore.acAccount>, publication<String> ): <Array>`
+
+On client side, the method returns null.
+
+On server side, the method returns the current transformation functions array for the named publication, and let the caller examines it, reset it or update it.
+
+Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
+
+Default transformation on publications is to add the `preferredLabel()` result inside of a `DYN` sub-object.
+
+Available both on the client and the server.
+
+- `transformsRead( instance<AccountsCore.acAccount> ): <Array>`
+
+On client side, the method returns null.
+
+On server side, the method returns the current transformation functions array for read accesses, and let the caller examines it, reset it or update it.
+
+Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+
+Default transformation on read accesses is to add the `preferredLabel()` result inside of a `DYN` sub-object.
+
+Available both on the client and the server.
+
+- `transformsUpdate( instance<AccountsCore.acAccount> )`
+
+On client side, the method returns null.
+
+On server side, the method returns the current transformation functions array for update accesses, and let the caller examines it, reset it or update it.
+
+Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+
+Note that writers of transformation functions for update accesses should wonder if they want modify the document itself, or clone the document before mmodifying it.
+
+Default transformation on update accesses is to remove the `DYN` sub-object. The function returns a modified clone of the initial document.
+
+Available both on the client and the server.
+
+- `usernameAtLeastOne(): true|false`
+- `usernameMayHaveOne(): true|false`
+
+    Whether we want at least one username.
+
+
+    Whether we may have one username.
+
+##### `Options`
+
+The class extends the `Options.Base` class to reactively manage `acAccount` instanciation arguments.
+
+In other words, all instanciation arguments are available through `<my_acAccount_instance>.opts().<my_argument>()`, e.g. `acInstance.opts().minEmailAddressesCount()`.
+
+#### `AccountsCore.Checks` helpers
+
+This object hosts check functions:
+
+- `async checkEmailAddress( instance<acAccount>, email<String>, opts={} ): <Object>`
+
+    Check an email address for validity and existance, and returns a result object as:
+
+```js
+    ok: true,
+    reason: undefined,
+    errors: [],
+    countOk: 0,
+    countNotOk: 0,
+    canonical: ( email ? email.trim() : '' ).toLowerCase()
+```
+
+- `async checkPassword( instance<acAccount>, password<String>, opts={} ): <Object>`
+
+    Check a password for strength, and returns a result object as:
+
+```js
+    ok: true,
+    reason: undefined,
+    errors: [],
+    countOk: 0,
+    countNotOk: 0,
+    minScore: -1,
+    zxcvbn: null,
+    canonical: password || ''
+```
+
+- `async checkUsername( instance<acAccount>, password<String>, opts={} ): <Object>`
+
+    Check a username for validity and existance, and returns a result object as:
+
+```js
+    ok: true,
+    reason: undefined,
+    errors: [],
+    countOk: 0,
+    countNotOk: 0,
+    canonical: username ? username.trim() : ''
+```
+
+#### `AccountsCore.Transforms` helpers
+
+This object hosts transformation functions used by `AccountsCore`, and which may be usefujl for other packages:
+
+- `async addDyn( instance<acAccount>, itemDoc<Object>, options<Object>: itemDoc<Object>`
+
+- `async addPreferredLabel( instance<acAccount>, itemDoc<Object>, options<Object>: itemDoc<Object>`
+
+- `async cleanupUserDocument( instance<acAccount>, itemDoc<Object>, options<Object>: itemDoc<Object>`
+
+- `async removeDyn( instance<acAccount>, itemDoc<Object>, options<Object>: itemDoc<Object>`
 
 #### Functions
 
-##### `AccountsHub.onCreateUser( f<Function> )`
-
-On server-side, push a new function on the stack of `Accounts.onCreateUser()` calls.
-
-This only applies to `users` Meteor standard collection.
-
-##### `AccountsHub.runAccountsSelection( selected<ReactiveVar>, opts<Object> )`
-
-Runs a modal dialog to let the user choose zero to many user accounts.
-
-Parameters are:
-
-- `selected`: a ReactiveVar which contains the array of initially selected accounts identifiers (`_id`)
-
-    This same ReactiveVar will contain the selection result when the dialog will be validated.
-
-- `opts`: an optional options object with following keys:
-
-    - `disabled`: whether the selection component should be disabled, defaulting to `false`
-    - `selectOptions`: additional configuration options for `multiple-select` selection component
-    - `instance`: the name of the accounts instance, defaulting to 'users'
-    - `select_ph`: the select component placeholder, defaulting to (localized) 'Select the desired accounts'
-    - `dialog_title`: the dialog title, defaulting to (localized) 'Select one or more user accounts'
-    - `$target`: a jQuery object which will receive the 'ah-accounts-select' event at the validation of the dialog
-
-The modal may trigger an 'ah-accounts-select' event at validation time, with data as:
-
-    - `items`: an array of selected accounts documents
-    - `selected`: an array of selected accounts identifiers.
-
-This function is available on client-side only.
-
-##### `AccountsHub.areSame( userA<String|Object>, userB<String|Object> )`
+##### `AccountsCore.areSame( userA<String|Object>, userB<String|Object> )`
 
 Returns `true`|`false` depending if user A and user B are the same, whatever the way these users are identified, either by their id or by their user document.
 
-##### `AccountsHub.configure( o )`
+##### `AccountsCore.configure( o )`
 
 The configuration of the package.
 
 See [below](#configuration).
 
-##### `AccountsHub.i18n.namespace()`
+##### `AccountsCore.i18n.namespace()`
 
-This method returns the `pwix:i18n` namespace of the `pwix:accounts-hub` package.
+This method returns the `pwix:i18n` namespace of the `pwix:accounts-core` package.
 
 With that name, anyone is so able to provide additional translations.
 
-##### `AccountsHub.isAllowed()`
+##### `AccountsCore.isAllowed()`
 
 Manages permissions to the accounts.
 
-Prototype is `async AccountsHub.isAllowed( action<String>, userId<String>, args<Object> ): Boolean`.
+Prototype is `async AccountsCore.isAllowed( action<String>, userId<String>, args<Object> ): <Boolean>`.
 
-The provided `args` argument MUST contain an `instance` key with an instance of `AccountsHub.ahClass` or the name of such a class.
+The provided `args` argument MUST contain an `instance` key with an instance of `AccountsCore.acAccount` or the name of such an instance.
 
 Available both on the client and the server.
 
 ## Blaze components
 
-### `ahPreferredLabel`
+### `acPreferredLabel`
 
 A component which asynchrously displays the user preferred label.
 
 It accepts following data context:
 
-- `ahName`
+- `acName`
 
-    The name of the `AccountsHub.ahClass` instance, defaulting to 'users'.
+    The name of the `AccountsCore.acAccount` instance, defaulting to 'users'.
 
-- `ahUserLabel`
+- `acUserLabel`
 
-    The label to be displayed, defaulting to the preferred label of identifier user (see below).
+    The label to be displayed, defaulting to the preferred label of identified user (see below).
 
-- `ahUserId`
+- `acUserId`
 
     The identifier of the user to be considered.
+
+## Publications
+
+### `pwix.AccountsCore.p.listAll( instanceName<String> )`
+
+This publishes a cursor of all accounts in the named collection. It is subject to the `pwix.accounts_core.feat.list` permission.
+
+Each published document:
+
+- is cleaned up from confidential data
+
+- has a `DYN` subject which contains:
+
+    - preferredLabel: the result of the `AccountsCore.preferredLabel()` function
 
 ## Permissions management
 
@@ -334,22 +431,23 @@ This package can take advantage of `pwix:permissions` package to manage the user
 
 It defines following tasks:
 
-- `pwix.accounts_hub.feat.list`: display all accounts, with additional arguments as an object with following keys:
-    - instance: the `ahClass` instance, or the name of the `ahClass` instance
+- `pwix.accounts_core.feat.list`: display all accounts, with additional arguments as an object with following keys:
+
+    - instance: the `AccountsCore.acAccount` instance
 
 Please remind that default is to allow all actions which are not provided.
 
 ## Configuration
 
-The package's behavior can be configured through a call to the `AccountsHub.configure()` method, with just a single javascript object argument, which itself should only contains the options you want override.
+The package's behavior can be configured through a call to the `AccountsCore.configure()` method, with just a single javascript object argument, which itself should only contains the options you want override.
 
 Known configuration options are:
 
 - `autoUsers`
 
-    Whether to automatically instanciates a `ahClass` instance for the standard `users` collection, defaulting to `true`.
+    Whether to automatically instanciates a `acAccount` instance for the standard `users` collection, defaulting to `true`.
 
-    When `true` (the default), then the `ahClass` will be instanciated at startup time.
+    When `true` (the default), then the `acAccount` instance will be instanciated at startup time.
 
     Note: do NOT leave default `autoUsers` to `true` if you are too using `pwix:accounts-manager`. This is because this later extends the accounts class, and so expects to find back its own instances.
 
@@ -357,35 +455,35 @@ Known configuration options are:
 
     The verbosity level as:
 
-    - `AccountsHub.C.Verbose.NONE`
+    - `AccountsCore.C.Verbose.NONE`
 
     or an OR-ed value of integer constants:
 
-    - `AccountsHub.C.Verbose.CONFIGURE`
+    - `AccountsCore.C.Verbose.CONFIGURE`
 
     Trace the calls to `configure()` function.
 
-    - `AccountsHub.C.Verbose.FUNCTIONS`
+    - `AccountsCore.C.Verbose.FUNCTIONS`
 
     Trace all function calls.
 
-    - `AccountsHub.C.Verbose.SERVER`
+    - `AccountsCore.C.Verbose.SERVER`
 
     Trace server function calls and their result.
 
-    - `AccountsHub.C.Verbose.INSTANCE`
+    - `AccountsCore.C.Verbose.INSTANCE`
 
-        Trace `amClass` instanciation
+        Trace `amAccount` instanciation
 
-    - `AccountsHub.C.Verbose.READY`
+    - `AccountsCore.C.Verbose.READY`
 
         Track the readyness status of the package.
 
-    Defaults to `AccountsHub.C.Verbose.CONFIGURE`.
+    Defaults to `AccountsCore.C.Verbose.CONFIGURE`.
 
-Please note that `AccountsHub.configure()` method should be called in the same terms both in client and server sides.
+Please note that `AccountsCore.configure()` method should be called in the same terms both in client and server sides.
 
-Remind too that Meteor packages are instanciated at application level. They are so only configurable once, or, in other words, only one instance has to be or can be configured. Addtionnal calls to `AccountsHub.configure()` will just override the previous one. You have been warned: **only the application should configure a package**.
+Remind too that Meteor packages are instanciated at application level. They are so only configurable once, or, in other words, only one instance has to be or can be configured. Addtionnal calls to `AccountsCore.configure()` will just override the previous one. You have been warned: **only the application should configure a package**.
 
 ## NPM peer dependencies
 
@@ -408,9 +506,9 @@ Each of these dependencies should be installed at application level:
 
 ## Translations
 
-`pwix:accounts-hub` provides at the moment **fr** and **en** translations.
+`pwix:accounts-core` provides at the moment **fr** and **en** translations.
 
-New and updated translations are willingly accepted, and more than welcome. Just be kind enough to submit a PR on the [Github repository](https://github.com/trychlos/pwix-accounts-hub/pulls).
+New and updated translations are willingly accepted, and more than welcome. Just be kind enough to submit a PR on the [Github repository](https://github.com/trychlos/pwix-accounts-core/pulls).
 
 ## Cookies and comparable technologies
 
@@ -418,7 +516,7 @@ None at the moment.
 
 ## Issues & help
 
-In case of support or error, please report your issue request to our [Issues tracker](https://github.com/trychlos/pwix-accounts-hub/issues).
+In case of support or error, please report your issue request to our [Issues tracker](https://github.com/trychlos/pwix-accounts-core/issues).
 
 ---
 P. Wieser

@@ -1,12 +1,15 @@
 /*
- * pwix:accounts-hub/src/common/js/index.js
+ * pwix:accounts-core/src/common/js/index.js
  */
 
 import './global.js';
 import './constants.js';
 
-import { ahClass } from '../classes/ah-class.class.js';
-import { ahOptions } from '../classes/ah-options.class.js';
+import { acAccount } from '../classes/ac-account.class';
+import { acOptions } from '../classes/ac-options.class';
+
+import { acChecks } from '../helpers/ac-checks';
+import { acTransforms } from '../helpers/ac-transforms';
 
 import './configure.js';
 import './functions.js';
@@ -14,5 +17,7 @@ import './i18n.js';
 import './ready.js';
 import './startup.js';
 
-AccountsHub.ahClass = ahClass;
-AccountsHub.ahOptions = ahOptions;
+AccountsCore.acAccount = acAccount;
+AccountsCore.Options = acOptions;
+AccountsCore.Checks = acChecks;
+AccountsCore.Transforms = acTransforms;

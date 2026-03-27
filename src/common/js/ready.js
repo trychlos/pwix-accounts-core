@@ -1,5 +1,5 @@
 /*
- * pwix:accounts-hub/src/common/js/ready.js
+ * pwix:accounts-core/src/common/js/ready.js
  *
  * The package must be fully evaluated before instanciating any element.
  */
@@ -22,7 +22,7 @@ _ready = {
  * @returns {Boolean} the current readyness status
  *  A reactive data source.
  */
-AccountsHub.ready = function( b ){
+AccountsCore.ready = function( b ){
     if( b !== undefined ){
         _ready.value = b;
         _ready.dep.changed();
@@ -32,5 +32,5 @@ AccountsHub.ready = function( b ){
 }
 
 Tracker.autorun(() => {
-    logger.verbose({ verbosity: AccountsHub.configure().verbosity, against: AccountsHub.C.Verbose.READY }, 'ready', AccountsHub.ready());
+    logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.READY }, 'ready', AccountsCore.ready());
 });

@@ -1,9 +1,9 @@
 /*
- * pwix:accounts-hub/src/common/i18n/fr.js
+ * pwix:accounts-core/src/common/i18n/fr.js
  */
 
-AccountsHub.i18n = {
-    ...AccountsHub.i18n,
+AccountsCore.i18n = {
+    ...AccountsCore.i18n,
     ...{
         fr: {
             checks: {
@@ -16,10 +16,6 @@ AccountsHub.i18n = {
                 username_empty: 'Le nom d\'utilisateur n\'est pas renseigné',
                 username_exists: 'Le nom d\'utilisateur existe déjà',
                 username_short: 'Le nom d\'utilisateur est trop court (mini=%s)'
-            },
-            dialogs: {
-                accounts_select_dialog_title: 'Choisissez un ou plusieurs comptes utilisateur',
-                accounts_select_ph: 'Selectionnez les comptes souhaités'
             }
         }
     }

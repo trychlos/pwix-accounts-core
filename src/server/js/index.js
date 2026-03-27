@@ -1,5 +1,5 @@
 /*
- * pwix:accounts-hub/src/server/js/index.js
+ * pwix:accounts-core/src/server/js/index.js
  */
 
 import '../../common/js/index.js';
@@ -11,4 +11,4 @@ import './publish.js';
 import './users-accounts.js';
 
 // on server side, the package is now fully evaluated, so ready
-AccountsHub.ready( true );
+AccountsCore.ready( true );

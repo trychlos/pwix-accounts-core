@@ -1,0 +1,54 @@
+/*
+ * /imports/client/components/acPreferredLabel/acPreferredLabel.js
+ *
+ * A component which asynchronously display the preferred label for the provided user id.
+ * 
+ * Parms:
+ * - acName: the name of the acAccount instance we are referring to, defaulting to 'users'
+ * - acUserId: the user identifer whose preferred label is to be displayed
+ *   or
+ * - acUserLabel: the label to be displayed
+ *   when set, the label is preferentially taken over the user id
+ */
+
+import { AccountsCore } from 'meteor/pwix:accounts-core';
+import { check, Match } from 'meteor/check';
+import { Logger } from 'meteor/pwix:logger';
+
+import './acPreferredLabel.html';
+
+const logger = Logger.get();
+
+Template.acPreferredLabel.onCreated( function(){
+    const self = this;
+
+    self.APP = {
+        preferredLabel: new ReactiveVar( null )
+    };
+
+    // get the preferred label
+    self.autorun(() => {
+        const label = Template.currentData().acUserLabel;
+        if( label ){
+            self.APP.preferredLabel.set( label );
+        } else {
+            const userId = Template.currentData().acUserId;
+            if( userId ){
+                const instanceName = Template.currentData().acName || AccountsCore.Options._defaults.name;
+                check( instanceName, Match.NonEmptyString );
+                const acInstance = AccountsCore.getInstance( instanceName );
+                check( acInstance, AccountsCore.acAccount );
+                acInstance.preferredLabel( userId ).then(( res ) => {
+                    self.APP.preferredLabel.set( res.label );
+                });
+            }
+        }
+    });
+});
+
+Template.acPreferredLabel.helpers({
+    // display the preferred label
+    preferredLabel(){
+        return Template.instance().APP.preferredLabel.get();
+    }
+});

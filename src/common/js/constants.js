@@ -1,8 +1,8 @@
 /*
- * pwix:accounts-hub/src/common/js/constants.js
+ * pwix:accounts-core/src/common/js/constants.js
  */
 
-AccountsHub.C = {
+AccountsCore.C = {
     // cardinality
     Cardinality: {
         ILLIMITED: 'ILLIMITED'
@@ -30,6 +30,14 @@ AccountsHub.C = {
         EMAIL_ADDRESS: 'EMAIL_ADDRESS'
     },
 
+    // some constants for our publications
+    pub: {
+        listAll: {
+            name: 'pwix.AccountsCore.p.listAll',
+            permission: 'pwix.accounts_core.feat.list'
+        }
+    },
+
     // verbosity levels
     Verbose: {
         NONE:           0,
@@ -48,4 +56,4 @@ AccountsHub.C = {
 };
 
 // non exported internal constant as i18n namespace
-I18N = 'pwix:accounts-hub:i18n'
+I18N = 'pwix:accounts-core:i18n'

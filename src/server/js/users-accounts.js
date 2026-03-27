@@ -1,5 +1,5 @@
 /*
- * pwix:accounts-hub/src/server/js/users-accounts.js
+ * pwix:accounts-core/src/server/js/users-accounts.js
  *
  * Server-only functions.
  * Only honors standard Meteor.users collection
@@ -14,7 +14,7 @@ _fns = [];
 
 // Server-side: this is a pre-create user on Meteor.users standard collection, though a temmporary _id is defined
 const _onCreateUser = function( opts, user ){
-    //logger.log( 'AccountsHub.onCreateUser: opts=%o, user=%o', opts, user );
+    //logger.log( 'AccountsCore.onCreateUser: opts=%o, user=%o', opts, user );
     // make sure each email has its own identifier (required by Blaze)
     ( user.emails || [] ).forEach(( it ) => {
         if( !it._id ){
@@ -38,12 +38,12 @@ Accounts.onCreateUser(( opts, user ) => {
     return custom;
 });
 
-AccountsHub.onCreateUser = function( f ){
+AccountsCore.onCreateUser = function( f ){
     check( f, Function );
     _fns.push( f );
 };
 
-AccountsHub.onCreateUser( _onCreateUser );
+AccountsCore.onCreateUser( _onCreateUser );
 
 // track the account creation
 Accounts.validateNewUser(( user ) => {

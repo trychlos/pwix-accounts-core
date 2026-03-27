@@ -1,4 +1,4 @@
-# pwix:accounts-hub - TODO
+# pwix:accounts-core - TODO
 
 ## Summary
 

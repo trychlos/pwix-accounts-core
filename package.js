@@ -1,15 +1,15 @@
 Package.describe({
-    name: 'pwix:accounts-hub',
-    version: '1.4.0-rc.0',
-    summary: 'Accounts management hub for Meteor',
-    git: 'https://github.com/trychlos/pwix-accounts-hub',
+    name: 'pwix:accounts-core',
+    version: '2.0.0-rc.0',
+    summary: 'Accounts core management for Meteor',
+    git: 'https://github.com/trychlos/pwix-accounts-core',
     documentation: 'README.md'
 });
 
 Package.onUse( function( api ){
     configure( api );
     api.export([
-        'AccountsHub'
+        'AccountsCore'
     ]);
     api.mainModule( 'src/client/js/index.js', 'client' );
     api.mainModule( 'src/server/js/index.js', 'server' );
@@ -18,7 +18,7 @@ Package.onUse( function( api ){
 Package.onTest( function( api ){
     configure( api );
     api.use( 'tinytest' );
-    api.use( 'pwix:accounts-hub' );
+    api.use( 'pwix:accounts-core' );
     api.mainModule( 'test/js/index.js' );
 });
 
@@ -32,13 +32,11 @@ function configure( api ){
     api.use( 'mongo' );
     api.use( 'pwix:i18n@1.5.0' );
     api.use( 'pwix:logger@1.0.0-rc' );
-    api.use( 'pwix:modal@2.5.0-rc' );
     api.use( 'pwix:options@2.1.0' );
-    api.use( 'pwix:ui-utils@1.4.0' );
     api.use( 'random' );
     api.use( 'reactive-var' );
     api.use( 'tmeasday:check-npm-versions@1.0.2 || 2.0.0-beta.0', 'server' );
-    api.addFiles( 'src/client/components/ahPreferredLabel/ahPreferredLabel.js', 'client' );
+    api.addFiles( 'src/client/components/acPreferredLabel/acPreferredLabel.js', 'client' );
 }
 
 // NPM dependencies are checked in /src/server/js/check_npms.js

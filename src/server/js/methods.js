@@ -1,36 +1,44 @@
 /*
- * pwix:accounts-hub/src/server/js/methods.js
+ * pwix:accounts-core/src/server/js/methods.js
  */
 
+import _ from 'lodash';
+
+import { check, Match } from 'meteor/check';
 import { Logger } from 'meteor/pwix:logger';
 
 const logger = Logger.get();
 
 Meteor.methods({
-    // find a user by one of his/her email addresses
-    async 'pwix.AccountsHub.m.byEmailAddress'( instanceName, email, options ){
-        try {
-            return AccountsHub.s.byEmailAddress( instanceName, email, options );
-        } catch( e ){
-            logger.warning( 'pwix.AccountsHub.m.byEmailAddress()', e );
-        }
+    // find a user by one of his/her known identifiers
+    async 'pwix.AccountsCore.m.byAnyIdentifier'( instanceName, identifier, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( identifier, Match.OneOf( Match.NonEmptyString, Object ));
+        check( options, Object );
+        return await AccountsCore.s.byAnyIdentifier( instanceName, identifier, options );
     },
 
-    // find a user by his internal (mongo) identifier
-    async 'pwix.AccountsHub.m.byId'( instanceName, id, options ){
-        try {
-            return AccountsHub.s.byId( instanceName, id, options );
-        } catch( e ){
-            logger.warning( 'pwix.AccountsHub.m.byId()', e );
-        }
+    // find a user by one of his/her email addresses
+    async 'pwix.AccountsCore.m.byEmailAddress'( instanceName, email, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( email, Match.NonEmptyString );
+        check( options, Object );
+        return await AccountsCore.s.byEmailAddress( instanceName, email, options );
+    },
+
+    // find a user by query
+    async 'pwix.AccountsCore.m.byQuery'( instanceName, query, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( query, Object );
+        check( options, Object );
+        return await AccountsCore.s.byQuery( instanceName, query, options );
     },
 
     // find a user by his/her username
-    async 'pwix.AccountsHub.m.byUsername'( instanceName, username, options ){
-        try {
-            return AccountsHub.s.byUsername( instanceName, username, options );
-        } catch( e ){
-            logger.warning( 'pwix.AccountsHub.m.byUsername()', e );
-        }
+    async 'pwix.AccountsCore.m.byUsername'( instanceName, username, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( username, Match.NonEmptyString );
+        check( options, Object );
+        return await AccountsCore.s.byUsername( instanceName, username, options );
     }
 });

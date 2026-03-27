@@ -1,10 +1,10 @@
 /*
- * pwix:accounts-hub/src/common/js/startup.js
+ * pwix:accounts-core/src/common/js/startup.js
  */
 
-// at startup, instanciates a default ahClass instance for the standard 'users' collection
+// at startup, instanciates a default acAccount instance for the standard 'users' collection
 Meteor.startup(() => {
-    if( AccountsHub.configure().autoUsers && !AccountsHub.getInstance( 'users' )){
-        new AccountsHub.ahClass({ name: 'users' });
+    if( AccountsCore.configure().autoUsers && !AccountsCore.getInstance( 'users' )){
+        new AccountsCore.acAccount({ name: 'users' });
     }
 });
