@@ -2,9 +2,9 @@
 
 ## ChangeLog
 
-### 2.0.0-rc.0
+### 2.0.0
 
-    Release date: 
+    Release date: 2026- 4- 2
 
     - Improve configure() warns when a key doesn't exist
     - Improve installation instructions
@@ -55,4 +55,4 @@
 
 ---
 P. Wieser
-- Last updated on 2026, Feb. 9th
+- Last updated on 2026, Apr. 2nd
