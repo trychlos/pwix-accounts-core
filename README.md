@@ -14,7 +14,7 @@ _Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...
 
 - define a preferred label when about to display a user identity.
 
-But, in its most sample flavor, `pwix:accounts-core` is just an thin encapsulation around the Meteor `accounts-base` package.
+But, in its most sample flavor, `pwix:accounts-core` is just an thin encapsulation around the Meteor `accounts-base` package to manage the standard `users` collection.
 
 ## Rationale
 
@@ -100,6 +100,8 @@ But, for compatibility and simplicity reasons, doing nothing in your application
             ]
         ```
 
+        This list of regular expressions is used by the `cleanupUserDocument()` transformation to filter all records sent back to the client.
+
         Since v2.0.
 
     - `collection`
@@ -127,6 +129,52 @@ But, for compatibility and simplicity reasons, doing nothing in your application
         Please be conscious that some features of your application may want display an identifier for each user. It would be a security hole to let the application display a verified email address anywhere, as this would be some sort of spam magnet!
 
         Starting with v2.0, these two booleans are superseded by minimal and maximal cardinalities below.
+
+    - `hooksCommon`
+
+        Creating a new user account, updating or deleting it, are features managed from common-code correspondant functions `AccountsCore.createUser()`, `AccountsCore.updateUser()` and `AccountsCore.deleteUser()`. These functions are able to directly execute the relevant code for 'users' collection, and try to provide suitable defaults for other collections. But it may come time where you want take more control about the execution. Thus below (optional) hooks:
+
+        - `createUserFn`
+        - `createUserArgs`
+
+        - `updateUserFn`
+        - `updateUserArgs`
+
+        - `deleteUserFn`
+        - `deleteUserArgs`
+
+            These functions respectively creates, updates or deletes a user account.
+
+            Arguments can be provided as an object, or a function which returns such an object.
+
+            Expected prototype is `async userFn( item<Object|String>, options<Object> [, userArgs<Object> ]): <Boolean>`.
+
+        The arguments object may contain following keys:
+
+        - `instance`: the instance name, defaulting to 'users'
+
+        All `hooksCommon` functions which are provided must be callable both from client and server sides.
+
+    - `hooksServer`
+
+        An optional object which gathers server-side hooks:
+
+        - `preInsertFn`
+        - `postInsertFn`
+
+        - `preUpdateFn`
+        - `postUpdateFn`
+
+        - `preDeleteFn`
+        - `postDeleteFn`
+
+            Expected prototype is `async fn( userDoc<Object>, options<Object> ): <void>`
+
+            These functions can modify in place the user document.
+
+            The `pre`functions should throw an error if they want cancel the operation.
+
+        These hooks are only called from server side.
 
     - `informWrongEmail`
 
@@ -230,10 +278,7 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 - `emailAtLeastOne(): true|false`
 - `emailMayHaveOne(): true|false`
 
-    Whether we want at least one email address.
-
-
-    Whether we may have one email address.
+    Whether we may have one or we want at least one email address.
 
 - `async preferredLabel( userId|userDocument [, preferred] )`
 
@@ -256,49 +301,46 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
 - `transformsPublish( instance<AccountsCore.acAccount>, publication<String> ): <Array>`
 
-On client side, the method returns null.
+    On client side, the method returns null.
 
-On server side, the method returns the current transformation functions array for the named publication, and let the caller examines it, reset it or update it.
+    On server side, the method returns the current transformation functions array for the named publication, and let the caller examines it, reset it or update it.
 
-Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
 
-Default transformation on publications is to add the `preferredLabel()` result inside of a `DYN` sub-object.
+    Default transformation on publications is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
-Available both on the client and the server.
+    Available both on the client and the server.
 
 - `transformsRead( instance<AccountsCore.acAccount> ): <Array>`
 
-On client side, the method returns null.
+    On client side, the method returns null.
 
-On server side, the method returns the current transformation functions array for read accesses, and let the caller examines it, reset it or update it.
+    On server side, the method returns the current transformation functions array for read accesses, and let the caller examines it, reset it or update it.
 
-Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
 
-Default transformation on read accesses is to add the `preferredLabel()` result inside of a `DYN` sub-object.
+    Default transformation on read accesses is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
-Available both on the client and the server.
+    Available both on the client and the server.
 
 - `transformsUpdate( instance<AccountsCore.acAccount> )`
 
-On client side, the method returns null.
+    On client side, the method returns null.
 
-On server side, the method returns the current transformation functions array for update accesses, and let the caller examines it, reset it or update it.
+    On server side, the method returns the current transformation functions array for update accesses, and let the caller examines it, reset it or update it.
 
-Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
 
-Note that writers of transformation functions for update accesses should wonder if they want modify the document itself, or clone the document before mmodifying it.
+    Note that writers of transformation functions for update accesses should wonder if they want modify the document itself, or clone the document before mmodifying it.
 
-Default transformation on update accesses is to remove the `DYN` sub-object. The function returns a modified clone of the initial document.
+    Default transformation on update accesses is to remove the `DYN` sub-object. The function returns a modified clone of the initial document.
 
-Available both on the client and the server.
+    Available both on the client and the server.
 
 - `usernameAtLeastOne(): true|false`
 - `usernameMayHaveOne(): true|false`
 
-    Whether we want at least one username.
-
-
-    Whether we may have one username.
+    Whether we may have one or we want at least one username.
 
 ##### `Options`
 
@@ -369,25 +411,35 @@ This object hosts transformation functions used by `AccountsCore`, and which may
 
 Returns `true`|`false` depending if user A and user B are the same, whatever the way these users are identified, either by their id or by their user document.
 
-##### `AccountsCore.configure( o )`
+##### `AccountsCore.configure( o<Object> ): <Object>`
 
 The configuration of the package.
 
 See [below](#configuration).
 
-##### `AccountsCore.i18n.namespace()`
+##### `async AccountsCore.createUser( userDoc<Object>, options<Object> ): <Boolean>`
+
+Available both on the client and the server.
+
+##### `async AccountsCore.deleteUser( user<Object|String>, options<Object> ): <Boolean>`
+
+Available both on the client and the server.
+
+##### `AccountsCore.i18n.namespace(): <String>`
 
 This method returns the `pwix:i18n` namespace of the `pwix:accounts-core` package.
 
 With that name, anyone is so able to provide additional translations.
 
-##### `AccountsCore.isAllowed()`
+##### `async AccountsCore.isAllowed( action<String>, userId<String>, args<Object> ): <Boolean>`
 
 Manages permissions to the accounts.
 
-Prototype is `async AccountsCore.isAllowed( action<String>, userId<String>, args<Object> ): <Boolean>`.
-
 The provided `args` argument MUST contain an `instance` key with an instance of `AccountsCore.acAccount` or the name of such an instance.
+
+Available both on the client and the server.
+
+##### `async AccountsCore.updateUser( userDoc<Object>, options<Object> ): <Boolean>`
 
 Available both on the client and the server.
 

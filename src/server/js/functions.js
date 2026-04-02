@@ -213,4 +213,129 @@ AccountsCore.s = {
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byUsername( \''+username+'\' )', userDoc );
         return userDoc;
     },
+
+    /*
+     * @param {String|AccountsCore.acAccount} instance
+     * @param {Object|String} user either the user document or the user identifier to be deleted
+     * @param {Object} options
+     * @returns {Promise} which eventually resolves to a truethy/falsy value
+     */
+    async deleteAccount( instance, user, options={} ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'deleteAccount()', arguments );
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( user, Match.OneOf( String, Object ));
+        check( options, Object );
+        let acInstance = instance;
+        if( _.isString( instance )){
+            acInstance = AccountsCore.getInstance( instance );
+            check( acInstance, AccountsCore.acAccount );
+        }
+        let res;
+        try {
+            // preDelete server hook
+            let fn = acInstance.opts().hooksServer_preDeleteFn();
+            if( fn ){
+                await fn( user, options );
+            }
+            const id = _.isString( user ) ? user : user._id;
+            if( !id ){
+                logger.error( 'deleteAccount() unable to get the user identfier, got', user );
+                return false;
+            }
+            // successful insertAsync() returns the new identifier
+            res = await acInstance.collection().removeAsync({ _id: id });
+            // postDelete server hook
+            fn = acInstance.opts().hooksServer_postDeleteFn();
+            if( fn ){
+                options.res = res;
+                await fn( user, options );
+            }
+        } catch( e ){
+            logger.error( e );
+            res = false;
+        }
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'deleteAccount()', res );
+        return res;
+    },
+
+    /*
+     * @param {String|AccountsCore.acAccount} instance
+     * @param {Object} userDoc the user document to be created
+     * @param {Object} options an optional dictionary of fields to return or exclude
+     * @returns {Promise} which eventually resolves to a falsy value, or the unique identifier of the newly created record
+     */
+    async insertAccount( instance, userDoc, options={} ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'insertAccount()', arguments );
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( userDoc, Object );
+        check( options, Object );
+        let acInstance = instance;
+        if( _.isString( instance )){
+            acInstance = AccountsCore.getInstance( instance );
+            check( acInstance, AccountsCore.acAccount );
+        }
+        let res;
+        try {
+            // preInsert server hook
+            let fn = acInstance.opts().hooksServer_preInsertFn();
+            if( fn ){
+                await fn( userDoc, options );
+            }
+            // successful insertAsync() returns the new identifier
+            res = await acInstance.collection().insertAsync( userDoc );
+            if( res ){
+                userDoc._id = res;
+            }
+            // postInsert server hook
+            fn = acInstance.opts().hooksServer_postInsertFn();
+            if( fn ){
+                options.res = res;
+                await fn( userDoc, options );
+            }
+        } catch( e ){
+            logger.error( e );
+            res = false;
+        }
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'insertAccount()', res );
+        return res;
+    },
+
+    /*
+     * @param {String|AccountsCore.acAccount} instance
+     * @param {Object} userDoc the user document to be updated
+     * @param {Object} options an optional dictionary of fields to return or exclude
+     * @returns {Promise} which eventually resolves to a falsy value, or the result of the operation
+     */
+    async updateAccount( instance, userDoc, options={} ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'updateAccount()', arguments );
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( userDoc, Object );
+        check( options, Object );
+        let acInstance = instance;
+        if( _.isString( instance )){
+            acInstance = AccountsCore.getInstance( instance );
+            check( acInstance, AccountsCore.acAccount );
+        }
+        let res;
+        try {
+            // preUpdate server hook
+            let fn = acInstance.opts().hooksServer_preUpdateFn();
+            if( fn ){
+                await fn( userDoc, options );
+            }
+            // successful updateAsync() returns the count of affected documents
+            res = await acInstance.collection().updateAsync( userDoc );
+            // postUpdate server hook
+            fn = acInstance.opts().hooksServer_postUpdateFn();
+            if( fn ){
+                options.res = res;
+                await fn( userDoc, options );
+            }
+        } catch( e ){
+            logger.error( e );
+            res = false;
+        }
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'updateAccount()', res );
+        return res;
+    }
 };

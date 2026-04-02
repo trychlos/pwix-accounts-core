@@ -40,5 +40,29 @@ Meteor.methods({
         check( username, Match.NonEmptyString );
         check( options, Object );
         return await AccountsCore.s.byUsername( instanceName, username, options );
+    },
+
+    // delete an account
+    async 'pwix.AccountsCore.m.deleteAccount'( instanceName, user, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncludeingKeys({ _id: Match.NonEmptyString })));
+        check( options, Object );
+        return await AccountsCore.s.deleteAccount( instanceName, user, options );
+    },
+
+    // insert a new account - this is a fallback for not-users collections which do not provide a createUser() hook
+    async 'pwix.AccountsCore.m.insertAccount'( instanceName, userDoc, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( userDoc, Object );
+        check( options, Object );
+        return await AccountsCore.s.insertAccount( instanceName, userDoc, options );
+    },
+
+    // update an account
+    async 'pwix.AccountsCore.m.updateAccount'( instanceName, userDoc, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( userDoc, Object );
+        check( options, Object );
+        return await AccountsCore.s.updateAccount( instanceName, userDoc, options );
     }
 });

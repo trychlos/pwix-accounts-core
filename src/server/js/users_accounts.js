@@ -1,8 +1,48 @@
 /*
- * pwix:accounts-core/src/server/js/users-accounts.js
+ * pwix:accounts-core/src/server/js/users_accounts.js
  *
  * Server-only functions.
- * Only honors standard Meteor.users collection
+ * Honors standard Meteor.users collection methods (and only for 'users' collection).
+ * 
+ * AccountsCommon:
+ *  actions
+ *      createUser
+ *      createUserVerifyingEmail
+ *      sendResetPasswordEmail
+ *      sendEnrollmentEmail
+ *      sendVerificationEmail
+ *  hooks
+ *      onResetPasswordLink
+ *      onEnrollmentLink
+ *      onEmailVerificationLink
+ *      onLogin
+ *          register a callback to be called when the user has successfully logged in
+ *          can have several
+ *      onLoginFailure
+ *          register a callback to be called when a login attempt has failed
+ *          can have several
+ *      onLogout
+ *          register a callback to be called when a user has logged out
+ *          can have several
+ * 
+ * AccountsServer:
+ *  actions
+ *  hooks
+ *      validateNewUser
+ *          register a callback to be called before a user account is created - can check but not modify
+ *          can have several
+ *      onCreateUser
+ *          register a callback to be called before a user account is created - can modify or even rewrite a document, but not refuse it
+ *          only one
+ *      validateLoginAttempt
+ *          register a callback to be called when a user tries to log in - can refuse the login
+ *          can have several
+ *      beforeExternalLogin
+ *          register a callback to be called whenever login or user creation from external service is attempted - can refuse but not modify the document
+ *          only one
+ *      setAdditionalFindUserOnExternalLogin
+ *          register a callback to be called whenever a user is logged in via oauth and a user is not found with the service id - can refuse
+ *          only one
  */
 
 import { Accounts } from 'meteor/accounts-base';
@@ -21,7 +61,7 @@ const _onCreateUser = function( opts, user ){
             it._id = Random.id();
         }
     });
-    // pwi 2024-10-11 have a default true loginAllowed to let iziam identities connect to application
+    // pwi 2024-10-11 have a default true loginAllowed to let testAccounts identities connect to application
     // we expect that identities which are not permitted are refused by their (missing) memberships
     // that this helps for tests at least
     user.loginAllowed = true;
