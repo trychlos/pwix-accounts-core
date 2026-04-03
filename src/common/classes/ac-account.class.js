@@ -112,7 +112,7 @@ export class acAccount {
 
     // @summary Returns the preferred label for the user
     // @locus Anywhere
-    // @param {String|AccountsCore.acAccount} instance
+    // @param {String|AccountsCore.Account} instance
     // @param {String} id the user identifier
     // @param {String} preferred the optional caller preference, may be null
     // @param {Object} the result object

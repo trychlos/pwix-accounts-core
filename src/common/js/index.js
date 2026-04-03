@@ -18,7 +18,7 @@ import './i18n.js';
 import './ready.js';
 import './startup.js';
 
-AccountsCore.acAccount = acAccount;
+AccountsCore.Account = acAccount;
 AccountsCore.Checks = acChecks;
 AccountsCore.Config = AccountsConfig;
 AccountsCore.Options = acOptions;

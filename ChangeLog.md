@@ -7,6 +7,7 @@
     Release date: 
 
     - Define AccountsCore.Config.get() getter for Accounts configuration options, thus bumping minor candidate version number
+    - Exported AccountsCore.Account class is renamed to AccountsCore.Account
 
 ### 2.0.0
 

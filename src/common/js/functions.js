@@ -28,7 +28,7 @@ const logger = Logger.get();
 AccountsCore._setInstance = function( name, instance ){
     logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, '_setInstance()', arguments );
     check( name, Match.NonEmptyString );
-    check( instance, AccountsCore.acAccount );
+    check( instance, AccountsCore.Account );
     AccountsCore._instances.data[name] = instance;
     AccountsCore._instances.dep.changed();
 };
@@ -79,7 +79,7 @@ AccountsCore.createUser = async function( userDoc, options={} ){
     if( _.isString( instance )){
         instance = AccountsCore.getInstance( instance );
     }
-    check( instance, AccountsCore.acAccount );
+    check( instance, AccountsCore.Account );
     let res;
 
     // if a createUser hook is defined, then call it
@@ -141,7 +141,7 @@ AccountsCore.deleteUser = async function( user, options={} ){
     if( _.isString( instance )){
         instance = AccountsCore.getInstance( instance );
     }
-    check( instance, AccountsCore.acAccount );
+    check( instance, AccountsCore.Account );
     let res;
     const fn = instance.opts().hooksCommon_deleteUserFn();
     if( fn ){
@@ -162,14 +162,14 @@ AccountsCore.deleteUser = async function( user, options={} ){
 /**
  * Getter
  * @locus Anywhere
- * @param {String|AccountsCore.acAccount} instance
+ * @param {String|AccountsCore.Account} instance
  * @returns {acAccount} the named acAccount instance, or null
  *  A reactive data source
  */
 AccountsCore.getInstance = function( instance ){
     logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'getInstance()', arguments );
-    if( !instance || ( !_.isString( instance ) && !( instance instanceof AccountsCore.acAccount ))){
-        logger.error( 'getInstance() expects instance be a non-empty string or an instance of AccountsCore.acAccount, got', instance, 'throwing...' );
+    if( !instance || ( !_.isString( instance ) && !( instance instanceof AccountsCore.Account ))){
+        logger.error( 'getInstance() expects instance be a non-empty string or an instance of AccountsCore.Account, got', instance, 'throwing...' );
         throw new Error( 'Bad argument: instance' );
     }
     let acInstance = instance;
@@ -177,8 +177,8 @@ AccountsCore.getInstance = function( instance ){
         acInstance = AccountsCore._instances.data[instance] || null;
         AccountsCore._instances.dep.depend();
     }
-    if( acInstance && !( acInstance instanceof AccountsCore.acAccount )){
-        logger.error( 'getInstance() expects \'acInstance\' be an instance of AccountsCore.acAccount, or null, got', acInstance, 'throwing...' );
+    if( acInstance && !( acInstance instanceof AccountsCore.Account )){
+        logger.error( 'getInstance() expects \'acInstance\' be an instance of AccountsCore.Account, or null, got', acInstance, 'throwing...' );
         throw new Error( 'Bad result: acInstance' );
     }
     return acInstance;
@@ -227,7 +227,7 @@ AccountsCore.updateUser = async function( userDoc, options={} ){
     if( _.isString( instance )){
         instance = AccountsCore.getInstance( instance );
     }
-    check( instance, AccountsCore.acAccount );
+    check( instance, AccountsCore.Account );
     let res;
     const fn = instance.opts().hooksCommon_updateUserFn();
     if( fn ){

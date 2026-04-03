@@ -79,10 +79,10 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
         If the function is not provided, then the default is to **allow** all actions.
 
-        `allowFn` prototype is: `async allowFn( action<String>, userId<String>, { instance: <AccountsCore.acAccount> [, ...<Any> ] }): Boolean`, where:
+        `allowFn` prototype is: `async allowFn( action<String>, userId<String>, { instance: <AccountsCore.Account> [, ...<Any> ] }): Boolean`, where:
         
         - `userId` is the identifier of the requester user.
-        - `instance` is an instance of `AccountsCore.acAccount`.
+        - `instance` is an instance of `AccountsCore.Account`.
 
         Since v2.0.
 
@@ -299,37 +299,37 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
     Default is the value configured at instanciation time.
 
-- `transformsPublish( instance<AccountsCore.acAccount>, publication<String> ): <Array>`
+- `transformsPublish( instance<AccountsCore.Account>, publication<String> ): <Array>`
 
     On client side, the method returns null.
 
     On server side, the method returns the current transformation functions array for the named publication, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
 
     Default transformation on publications is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
     Available both on the client and the server.
 
-- `transformsRead( instance<AccountsCore.acAccount> ): <Array>`
+- `transformsRead( instance<AccountsCore.Account> ): <Array>`
 
     On client side, the method returns null.
 
     On server side, the method returns the current transformation functions array for read accesses, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`.
 
     Default transformation on read accesses is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
     Available both on the client and the server.
 
-- `transformsUpdate( instance<AccountsCore.acAccount> )`
+- `transformsUpdate( instance<AccountsCore.Account> )`
 
     On client side, the method returns null.
 
     On server side, the method returns the current transformation functions array for update accesses, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.acAccount>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`.
 
     Note that writers of transformation functions for update accesses should wonder if they want modify the document itself, or clone the document before mmodifying it.
 
@@ -435,7 +435,7 @@ With that name, anyone is so able to provide additional translations.
 
 Manages permissions to the accounts.
 
-The provided `args` argument MUST contain an `instance` key with an instance of `AccountsCore.acAccount` or the name of such an instance.
+The provided `args` argument MUST contain an `instance` key with an instance of `AccountsCore.Account` or the name of such an instance.
 
 Available both on the client and the server.
 
@@ -453,7 +453,7 @@ It accepts following data context:
 
 - `acName`
 
-    The name of the `AccountsCore.acAccount` instance, defaulting to 'users'.
+    The name of the `AccountsCore.Account` instance, defaulting to 'users'.
 
 - `acUserLabel`
 
@@ -485,7 +485,7 @@ It defines following tasks:
 
 - `pwix.accounts_core.feat.list`: display all accounts, with additional arguments as an object with following keys:
 
-    - instance: the `AccountsCore.acAccount` instance
+    - instance: the `AccountsCore.Account` instance
 
 Please remind that default is to allow all actions which are not provided.
 

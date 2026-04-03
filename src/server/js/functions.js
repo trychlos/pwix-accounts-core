@@ -62,14 +62,14 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {Object} a user document
      * @param {Object} options
      * @returns {Promise} which eventually resolves to the transformed user document
      */
     async applyReadTransforms( acInstance, userDoc, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyReadTransforms()', arguments );
-        check( acInstance, AccountsCore.acAccount );
+        check( acInstance, AccountsCore.Account );
         //logger.debug( 'applyReadTransforms()', acInstance._transforms );
         if( userDoc ){
             const transforms = acInstance.transformsRead();
@@ -81,7 +81,7 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {String} a user identifier
      * @param {Object} options an optional Mongo options object
      * @returns {Promise} which eventually resolves to the user document
@@ -94,7 +94,7 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {String} email the searched email address
      * @param {Object} options an optional dictionary of fields to return or exclude
      * @returns {Promise} which eventually resolves to the (unique) cleaned-up user document, or null
@@ -108,13 +108,13 @@ AccountsCore.s = {
      */
     async byEmailAddress( instance, email, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'byEmailAddress()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( email, Match.NonEmptyString );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let userDoc = null;
         if( acInstance.opts().collection() === 'users' ){
@@ -128,7 +128,7 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {String} id the user identifier
      * @returns {Promise} which eventually resolves to the (unique) cleaned-up user document, or null
      */
@@ -138,7 +138,7 @@ AccountsCore.s = {
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let userDoc = await AccountsCore.s.byQuery( acInstance, { _id: id }, options );
         userDoc = AccountsCore.s.applyReadTransforms( acInstance, userDoc );
@@ -147,19 +147,19 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {Object} query the MongoDB selector
      * @returns {Promise} which eventually resolves to the (unique) cleaned-up user document, or null
      */
     async byQuery( instance, query, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'byQuery()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( query, Object );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         const collection = acInstance.collection();
         check( collection, Mongo.Collection );
@@ -180,7 +180,7 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {String} username the searched username
      * @param {Object} options an optional dictionary of fields to return or exclude
      * @returns {Promise} which eventually resolves to the (unique) cleaned-up user document, or null
@@ -195,13 +195,13 @@ AccountsCore.s = {
      */
     async byUsername( instance, username, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'byUsername()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( username, Match.NonEmptyString );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let userDoc = null;
         if( acInstance.opts().collection() === 'users' ){
@@ -215,20 +215,20 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {Object|String} user either the user document or the user identifier to be deleted
      * @param {Object} options
      * @returns {Promise} which eventually resolves to a truethy/falsy value
      */
     async deleteAccount( instance, user, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'deleteAccount()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( user, Match.OneOf( String, Object ));
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let res;
         try {
@@ -259,20 +259,20 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {Object} userDoc the user document to be created
      * @param {Object} options an optional dictionary of fields to return or exclude
      * @returns {Promise} which eventually resolves to a falsy value, or the unique identifier of the newly created record
      */
     async insertAccount( instance, userDoc, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'insertAccount()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( userDoc, Object );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let res;
         try {
@@ -301,20 +301,20 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.acAccount} instance
+     * @param {String|AccountsCore.Account} instance
      * @param {Object} userDoc the user document to be updated
      * @param {Object} options an optional dictionary of fields to return or exclude
      * @returns {Promise} which eventually resolves to a falsy value, or the result of the operation
      */
     async updateAccount( instance, userDoc, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'updateAccount()', arguments );
-        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.acAccount ));
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( userDoc, Object );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
             acInstance = AccountsCore.getInstance( instance );
-            check( acInstance, AccountsCore.acAccount );
+            check( acInstance, AccountsCore.Account );
         }
         let res;
         try {

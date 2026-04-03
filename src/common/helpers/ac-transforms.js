@@ -12,7 +12,7 @@ export const acTransforms = {
 
     // add a DYN sub-object to documents sent to the client
     async addDyn( instance, itemDoc, options={} ){
-        check( instance, AccountsCore.acAccount );
+        check( instance, AccountsCore.Account );
         check( itemDoc, Object );
         check( options, Object );
         itemDoc.DYN = itemDoc.DYN || {};
@@ -21,7 +21,7 @@ export const acTransforms = {
 
     // compute the preferred label
     async addPreferredLabel( instance, itemDoc, options={} ){
-        check( instance, AccountsCore.acAccount );
+        check( instance, AccountsCore.Account );
         check( itemDoc, Object );
         check( options, Object );
         itemDoc.DYN.preferredLabel = await instance.preferredLabel( itemDoc );
@@ -53,7 +53,7 @@ export const acTransforms = {
     ],
     */
     async cleanupUserDocument( instance, itemDoc, options={} ){
-        check( instance, AccountsCore.acAccount );
+        check( instance, AccountsCore.Account );
         if( itemDoc ){
             // whether the string matches one of the regexes
             const regexes = instance.opts().cleanRegexes() || [];

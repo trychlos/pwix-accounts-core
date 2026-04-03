@@ -37,7 +37,7 @@ Template.acPreferredLabel.onCreated( function(){
                 const instanceName = Template.currentData().acName || AccountsCore.Options._defaults.name;
                 check( instanceName, Match.NonEmptyString );
                 const acInstance = AccountsCore.getInstance( instanceName );
-                check( acInstance, AccountsCore.acAccount );
+                check( acInstance, AccountsCore.Account );
                 acInstance.preferredLabel( userId ).then(( res ) => {
                     self.APP.preferredLabel.set( res.label );
                 });

@@ -14,7 +14,7 @@ Meteor.publish( AccountsCore.C.pub.listAll.name, async function( instanceName, o
     const self = this;
     check( instanceName, Match.NonEmptyString );
     const acInstance = AccountsCore.getInstance( instanceName );
-    check( acInstance, Match.OneOf( null, AccountsCore.acAccount ));
+    check( acInstance, Match.OneOf( null, AccountsCore.Account ));
     if( !acInstance ){
         logger.warning( AccountsCore.C.pub.listAll.name, 'unable to find an acAccount instance for name=\''+instanceName+'\'' );
         self.ready();
