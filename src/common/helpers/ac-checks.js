@@ -119,7 +119,7 @@ export const acChecks = {
         // check for minimal length
         const _checkLength = async function(){
             if( opts.testLength !== false ){
-                const minLength = self.opts().passwordLength();
+                const minLength = acInstance.opts().passwordLength();
                 if( result.canonical.length < minLength ){
                     result.ok = false;
                     result.reason = 'password_short';

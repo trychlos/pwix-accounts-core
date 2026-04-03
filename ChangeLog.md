@@ -2,11 +2,11 @@
 
 ## ChangeLog
 
-### 2.0.1-rc.0
+### 2.1.0-rc.0
 
     Release date: 
 
-    - 
+    - Define AccountsCore.Config.get() getter for Accounts configuration options, thus bumping minor candidate version number
 
 ### 2.0.0
 

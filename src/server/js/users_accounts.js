@@ -61,7 +61,7 @@ const _onCreateUser = function( opts, user ){
             it._id = Random.id();
         }
     });
-    // pwi 2024-10-11 have a default true loginAllowed to let testAccounts identities connect to application
+    // pwi 2024-10-11 have a default true loginAllowed to let izIAM identities connect to application
     // we expect that identities which are not permitted are refused by their (missing) memberships
     // that this helps for tests at least
     user.loginAllowed = true;
