@@ -7,6 +7,9 @@
 import _ from 'lodash';
 
 import { check, Match } from 'meteor/check';
+import { Logger } from 'meteor/pwix:logger';
+
+const logger = Logger.get();
 
 export const acTransforms = {
 
@@ -32,7 +35,19 @@ export const acTransforms = {
     // {
     //     _id: '55QDvyxocA8XBnyTy',
     //     createdAt: 2023-02-08T21:16:56.851Z,
-    //     services: { password: {}, email: { verificationTokens: [Array] } },
+    //     services: 
+    //        password: {
+    //           bcrypt: '$2b$10$WKT2CuGR5mqbuep.GxKfxegr13RWikyNJ9ARK0HbS5oVLJLAVX5v6',
+    //           reset: {
+    //              token: 'GT8sSr_v8Zr2RbUUO77mK3ZH_nyAOA9DA2XaT5fv3dj',
+    //              email: 'mmmm@mmm.mm',
+    //              when: ISODate('2026-04-03T15:50:05.713Z'),
+    //              reason: 'reset'
+    //           }
+    //        },
+    //        resume: { loginTokens: [] },
+    //        email: { verificationTokens: [] }
+    //     }n,
     //     username: 'cccc',
     //     emails: [ { address: 'cccc@ccc.cc', verified: true } ],
     //     isAllowed: true,
@@ -52,36 +67,93 @@ export const acTransforms = {
         'profile'
     ],
     */
+    _keepFields: [
+        'services\.password\.reset'       // needed by AccountsUI to check and reset the password
+    ],
     async cleanupUserDocument( instance, itemDoc, options={} ){
         check( instance, AccountsCore.Account );
         if( itemDoc ){
-            // whether the string matches one of the regexes
-            const regexes = instance.opts().cleanRegexes() || [];
-            const _match = function( string ){
-                for( const regex of regexes ){
-                    if( string.match( regex )){
+            const removeRegexes = instance.opts().cleanRegexes() || [];
+            const keepRegexes = acTransforms._keepFields || [];
+
+            // compile got regexes
+            const _compile = function( regexes ){
+                return regexes.map(( it ) => new RegExp( it ));
+            };
+            const removeMatchers = _compile( removeRegexes );
+            const keepMatchers = _compile( keepRegexes );
+
+            const _matchesOneOf = function( string, matchers ){
+                for( const re of matchers ){
+                    if( re.test( string )){
                         return true;
                     }
                 }
                 return false;
             };
-            // scan all keys for regexes matches
-            const _scan = function( it ){
-                let to_remove = [];
-                for( const key of Object.keys( it )){
-                    if( _match( key )){
-                        to_remove.push( key );
-                    } else {
-                        if( _.isObject( it[key] )){
-                            _scan( it[key] );
+
+            const _matchToRemove = function( path ){
+                return _matchesOneOf( path, removeMatchers );
+            };
+
+            const _matchToKeep = function( path ){
+                return _matchesOneOf( path, keepMatchers );
+            };
+
+            // true if one keep regex could concern this path or something below it
+            // needed because "services.password" must not be removed as a block if
+            // "services.password.reset" is to be preserved
+            const _mayContainKeepBelow = function( path ){
+                const dotted = path + '.';
+                for( const regex of keepRegexes ){
+                    if( regex.startsWith( dotted )){
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            const _isTraversable = function( value ){
+                return _.isObject( value ) && value !== null;
+            };
+
+            const _cleanup = function( node, basePath='' ){
+                if( !_isTraversable( node )){
+                    return;
+                }
+
+                for( const key of Object.keys( node )){
+                    const path = basePath ? `${basePath}.${key}` : key;
+                    const value = node[key];
+
+                    const mustRemove = _matchToRemove( path );
+                    const mustKeep = _matchToKeep( path );
+                    const mayContainKeep = _mayContainKeepBelow( path );
+
+                    if( mustRemove && !mustKeep ){
+                        if( _isTraversable( value ) && mayContainKeep ){
+                            // cannot remove whole subtree yet; inspect children
+                            _cleanup( value, path );
+
+                            // optional: if object became empty after cleanup, remove it
+                            if( _.isObject( value ) && Object.keys( value ).length === 0 ){
+                                delete node[key];
+                            }
+                        } else {
+                            delete node[key];
+                        }
+                    } else if( _isTraversable( value )){
+                        _cleanup( value, path );
+
+                        // optional cleanup of emptied objects
+                        if( _.isObject( value ) && !Array.isArray( value ) && Object.keys( value ).length === 0 ){
+                            delete node[key];
                         }
                     }
                 }
-                for( const key of to_remove ){
-                    delete it[key];
-                }
             };
-            _scan( itemDoc );
+
+            _cleanup( itemDoc );
         }
         return itemDoc;
     },

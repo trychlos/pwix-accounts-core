@@ -8,6 +8,7 @@
 
     - Define AccountsCore.Config.get() getter for Accounts configuration options, thus bumping minor candidate version number
     - Exported AccountsCore.Account class is renamed to AccountsCore.Account
+    - Extend Transforms.cleaupUserDocument() to be able to keep some fields
 
 ### 2.0.0
 

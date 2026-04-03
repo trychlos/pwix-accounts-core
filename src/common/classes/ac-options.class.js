@@ -19,8 +19,8 @@ export class acOptions extends Options.Base {
     static _defaults = {
         allowFn: null,
         cleanRegexes: [
-            'resume',
-            'password',
+            'services\.resume',
+            'services\.password',
             'profile'
         ],
         haveEmailAddress: AccountsCore.C.Identifier.MANDATORY,
