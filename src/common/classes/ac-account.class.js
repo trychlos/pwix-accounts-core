@@ -331,28 +331,14 @@ export class acAccount {
      */
     emailAtLeastOne(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.emailAtLeastOne()' );
-        let atLeastOne = true;
-        const options = this.opts().base_get_set_options();
-        if( options.includes( 'haveEmailAddress' )){
-            switch( this.opts().haveEmailAddress()){
-                case AccountsCore.C.Identifier.NONE:
-                case AccountsCore.C.Identifier.OPTIONAL:
-                    atLeastOne = false;
-                    break;
-                case AccountsCore.C.Identifier.MANDATORY:
-                    atLeastOne = true;
-                    break;
-            }
-        } else {
-            const min = this.opts().minEmailAddressesCount();
-            atLeastOne = ( min >= 1 );
-        }
+        const minCount = this.emailMinCount();
+        const atLeastOne = ( minCount >= 1 );
         return atLeastOne;
     };
 
     /**
      * @locus Anywhere
-     * @returns {Boolean} whether the instance may have one (or more) email address(es)
+     * @returns {Boolean} whether the instance may have one (or more) email address(es) - which means that zero is OK
      */
     emailMayHaveOne(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.emailMayHaveOne()' );
@@ -373,6 +359,40 @@ export class acAccount {
             haveOne = ( max !== 0 );
         }
         return haveOne;
+    };
+
+    /**
+     * @locus Anywhere
+     * @returns {Integer} the desired maximal count of email addresses
+     */
+    emailMaxCount(){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.emailMaxCount()' );
+        maxCount = this.opts().maxEmailAddressesCount();
+        return maxCount;
+    };
+
+    /**
+     * @locus Anywhere
+     * @returns {Integer} the desired minimal count of email addresses
+     */
+    emailMinCount(){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.emailMinCount()' );
+        let minCount = -1;
+        const options = this.opts().base_get_set_options();
+        if( options.includes( 'haveEmailAddress' )){
+            switch( this.opts().haveEmailAddress()){
+                case AccountsCore.C.Identifier.NONE:
+                case AccountsCore.C.Identifier.OPTIONAL:
+                    minCount = 0;
+                    break;
+                case AccountsCore.C.Identifier.MANDATORY:
+                    minCount = 1;
+                    break;
+            }
+        } else {
+            minCount = this.opts().minEmailAddressesCount();
+        }
+        return minCount;
     };
 
     /**
@@ -468,28 +488,14 @@ export class acAccount {
      */
     usernameAtLeastOne(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.usernameAtLeastOne()' );
-        let atLeastOne = true;
-        const options = this.opts().base_get_set_options();
-        if( options.includes( 'haveUsername' )){
-            switch( this.opts().haveUsername()){
-                case AccountsCore.C.Identifier.NONE:
-                case AccountsCore.C.Identifier.OPTIONAL:
-                    atLeastOne = false;
-                    break;
-                case AccountsCore.C.Identifier.MANDATORY:
-                    atLeastOne = true;
-                    break;
-            }
-        } else {
-            const min = this.opts().minUsernamesCount();
-            atLeastOne = ( min >= 1 );
-        }
+        const minCount = this.usernameMinCount();
+        const atLeastOne = ( minCount >= 1 );
         return atLeastOne;
     };
 
     /**
      * @locus Anywhere
-     * @returns {Boolean} whether the instance may have one (or more) username(s)
+     * @returns {Boolean} whether the instance may have one (or more) username(s) - which means that zero is OK
      */
     usernameMayHaveOne(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.usernameMayHaveOne()' );
@@ -510,5 +516,39 @@ export class acAccount {
             haveOne = ( max !== 0 );
         }
         return haveOne;
+    };
+
+    /**
+     * @locus Anywhere
+     * @returns {Integer} the maximal desired count of usernames
+     */
+    usernameMaxCount(){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.usernameMaxCount()' );
+        let maxCount = this.opts().maxUsernamesCount();
+        return maxCount;
+    };
+
+    /**
+     * @locus Anywhere
+     * @returns {Integer} the minimal desired count of usernames
+     */
+    usernameMinCount(){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.usernameMinCount()' );
+        let minCount = -1;
+        const options = this.opts().base_get_set_options();
+        if( options.includes( 'haveUsername' )){
+            switch( this.opts().haveUsername()){
+                case AccountsCore.C.Identifier.NONE:
+                case AccountsCore.C.Identifier.OPTIONAL:
+                    minCount = 0;
+                    break;
+                case AccountsCore.C.Identifier.MANDATORY:
+                    minCount = 1;
+                    break;
+            }
+        } else {
+            minCount = this.opts().minUsernamesCount();
+        }
+        return minCount;
     };
 }
