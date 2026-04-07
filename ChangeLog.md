@@ -10,6 +10,7 @@
     - Exported AccountsCore.Account class is renamed to AccountsCore.Account
     - Extend Transforms.cleaupUserDocument() to be able to keep some fields
     - Define emailMaxCount(), emailMinCount() and usernameMaxCount(), usernameMinCount() which honor both haveXxx and min/max counts parameters
+    - Define applyPublishTransforms(), applyReadTransforms(), applyUpdateTransforms(), updateByQuery() server functions
 
 ### 2.0.0
 

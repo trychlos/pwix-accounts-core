@@ -26,26 +26,18 @@ Meteor.publish( AccountsCore.C.pub.listAll.name, async function( instanceName, o
         return false;
     }
 
-    // @param {Object} item the Record item
-    // @returns {Object} item the transformed item
-    const f_transform = async function( item ){
-        const transforms = acInstance.transformsPublish( AccountsCore.C.pub.listAll.name );
-        for( const fn of ( transforms || [] )){
-            item = await fn( acInstance, item, opts, self.userId );
-        }
-        return item;
-    };
-
     let initializing = true;
 
     const observer = acInstance.collection().find().observeAsync({
         added: async function( item ){
-            const transformed = await f_transform( item );
+            const transformed = await AccountsCore.s.applyPublishTransforms( AccountsCore.C.pub.listAll.name, acInstance, item, opts, self.userId );
+            //if( item._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'added transformed', transformed );
             self.added( acInstance.opts().collection(), item._id, transformed );
         },
         changed: async function( newItem, oldItem ){
             if( !initializing ){
-                const transformed = await f_transform( newItem );
+                const transformed = await AccountsCore.s.applyPublishTransforms( AccountsCore.C.pub.listAll.name, acInstance, newItem, opts, self.userId );
+                //if( newItem._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'changed transformed', transformed );
                 self.changed( acInstance.opts().collection(), newItem._id, transformed );
             }
         },

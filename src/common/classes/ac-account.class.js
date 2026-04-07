@@ -59,6 +59,7 @@ export class acAccount {
             this._transforms.pub[name] = this._transforms.pub[name] || [];
             this._transforms.pub[name].push( acTransforms.addDyn );
             this._transforms.pub[name].push( acTransforms.addPreferredLabel );
+            this._transforms.pub[name].push( acTransforms.addUndefined );
             this._transforms.pub[name].push( acTransforms.cleanupUserDocument );
         }
         // read transformations

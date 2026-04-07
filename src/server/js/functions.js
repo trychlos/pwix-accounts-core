@@ -62,7 +62,30 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String|AccountsCore.Account} instance
+     * @param {String} pubName the publication name
+     * @param {AccountsCore.Account} instance
+     * @param {Object} a user document
+     * @param {Object} options
+     * @param {String} userId the requester user
+     * @returns {Promise} which eventually resolves to the transformed user document
+     */
+    async applyPublishTransforms( pubName, acInstance, userDoc, options={}, userId ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyPublishTransforms()', arguments );
+        check( pubName, Match.NonEmptyString );
+        check( acInstance, AccountsCore.Account );
+        if( userDoc ){
+            const transforms = acInstance.transformsPublish( pubName );
+            //if( userDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'applyPublishTransforms()', transforms, 'userDoc', userDoc );
+            for( const fn of transforms ){
+                userDoc = await fn( acInstance, userDoc, options, userId || userDoc._id );
+                //if( userDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'applyPublishTransforms()', userDoc );
+            }
+        }
+        return userDoc;
+    },
+
+    /*
+     * @param {AccountsCore.Account} instance
      * @param {Object} a user document
      * @param {Object} options
      * @returns {Promise} which eventually resolves to the transformed user document
@@ -73,6 +96,25 @@ AccountsCore.s = {
         //logger.debug( 'applyReadTransforms()', acInstance._transforms );
         if( userDoc ){
             const transforms = acInstance.transformsRead();
+            for( const fn of transforms ){
+                userDoc = await fn( acInstance, userDoc, options );
+            }
+        }
+        return userDoc;
+    },
+
+    /*
+     * @param {AccountsCore.Account} instance
+     * @param {Object} a user document
+     * @param {Object} options
+     * @returns {Promise} which eventually resolves to the transformed user document
+     */
+    async applyUpdateTransforms( acInstance, userDoc, options={} ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyUpdateTransforms()', arguments );
+        check( acInstance, AccountsCore.Account );
+        //logger.debug( 'applyUpdateTransforms()', acInstance._transforms );
+        if( userDoc ){
+            const transforms = acInstance.transformsUpdate();
             for( const fn of transforms ){
                 userDoc = await fn( acInstance, userDoc, options );
             }
@@ -122,7 +164,7 @@ AccountsCore.s = {
         } else {
             userDoc = await AccountsCore.s.byQuery({ 'emails.address': email }, options );
         }
-        userDoc = AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byEmailAddress( \''+email+'\' ):', userDoc );
         return userDoc;
     },
@@ -141,7 +183,7 @@ AccountsCore.s = {
             check( acInstance, AccountsCore.Account );
         }
         let userDoc = await AccountsCore.s.byQuery( acInstance, { _id: id }, options );
-        userDoc = AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await ccountsCore.s.applyReadTransforms( acInstance, userDoc );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byUsername('+username+')', userDoc );
         return userDoc;
     },
@@ -174,7 +216,7 @@ AccountsCore.s = {
                 userDoc = candidates[0];
             }
         }
-        userDoc = AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byQuery(', query, ')', userDoc );
         return userDoc;
     },
@@ -209,7 +251,7 @@ AccountsCore.s = {
         } else {
             userDoc = await AccountsCore.s.byQuery({ username }, options ) || await AccountsCore.s.byQuery({ 'usernames.username': username });
         }
-        userDoc = AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byUsername( \''+username+'\' )', userDoc );
         return userDoc;
     },
@@ -303,13 +345,15 @@ AccountsCore.s = {
     /*
      * @param {String|AccountsCore.Account} instance
      * @param {Object} userDoc the user document to be updated
+     * @param {Object} origDoc the original document to check that it has not been modified in the meantime
      * @param {Object} options an optional dictionary of fields to return or exclude
      * @returns {Promise} which eventually resolves to a falsy value, or the result of the operation
      */
-    async updateAccount( instance, userDoc, options={} ){
+    async updateAccount( instance, userDoc, origDoc=null, options={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'updateAccount()', arguments );
         check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
         check( userDoc, Object );
+        check( origDoc, Object );
         check( options, Object );
         let acInstance = instance;
         if( _.isString( instance )){
@@ -323,8 +367,11 @@ AccountsCore.s = {
             if( fn ){
                 await fn( userDoc, options );
             }
+            // update transformations
+            userDoc = await AccountsCore.s.applyUpdateTransforms( acInstance, userDoc );
+            //if( Object.keys( userDoc ).includes( 'userNotes' ) && !userDoc.userNotes ) userDoc.userNotes = undefined;
             // successful updateAsync() returns the count of affected documents
-            res = await acInstance.collection().updateAsync( userDoc );
+            res = await acInstance.collection().updateAsync({ _id: userDoc._id }, { $set: userDoc });
             // postUpdate server hook
             fn = acInstance.opts().hooksServer_postUpdateFn();
             if( fn ){
@@ -337,5 +384,28 @@ AccountsCore.s = {
         }
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'updateAccount()', res );
         return res;
+    },
+
+    // just update the collection
+    //  do not care of any permission here
+    async updateByQuery( instance, selector, modifier, options={}, userId=null ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'updateByQuery()', arguments );
+        check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
+        check( selector, Object );
+        check( modifier, Object );
+        let acInstance = instance;
+        if( _.isString( instance )){
+            acInstance = AccountsCore.getInstance( instance );
+            check( acInstance, AccountsCore.Account );
+        }
+        try {
+            const res = await acInstance.collection().updateAsync( selector, { $set: modifier });
+            if( !res ){
+                throw new Meteor.Error( 'AccountsCore.s.updateByQuery', 'Unable to update account', selector );
+            }
+            return res;
+        } catch( e ){
+            throw new Meteor.Error( 'AccountsCore.s.updateByQuery', 'Unable to update account', selector );
+        }
     }
 };

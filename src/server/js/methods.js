@@ -59,10 +59,21 @@ Meteor.methods({
     },
 
     // update an account
-    async 'pwix.AccountsCore.m.updateAccount'( instanceName, userDoc, options={} ){
+    async 'pwix.AccountsCore.m.updateAccount'( instanceName, userDoc, origDoc=null, options={} ){
         check( instanceName, Match.NonEmptyString );
         check( userDoc, Object );
+        check( origDoc, Match.OneOf( null, Object ));
         check( options, Object );
-        return await AccountsCore.s.updateAccount( instanceName, userDoc, options );
+        return await AccountsCore.s.updateAccount( instanceName, userDoc, origDoc, options );
+    },
+
+    // update an account
+    //  do not care of any permission here
+    async 'pwix.AccountsCore.m.updateByQuery'( instanceName, selector, modifier, options={} ){
+        check( instanceName, Match.NonEmptyString );
+        check( selector, Object );
+        check( modifier, Object );
+        check( options, Object );
+        return await AccountsCore.s.updateByQuery( instanceName, selector, modifier, options, this.userId );
     }
 });

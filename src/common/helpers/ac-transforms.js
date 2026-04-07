@@ -31,6 +31,21 @@ export const acTransforms = {
         return itemDoc;
     },
 
+    // known fields which are not set are 'undefined' so that they provide the client a reactivity way
+    // only considering first-level fields
+    // see https://docs.meteor.com/api/meteor#Subscription-changed
+    async addUndefined( instance, itemDoc, options={} ){
+        check( instance, AccountsCore.Account );
+        check( itemDoc, Object );
+        check( options, Object );
+        for( const name of instance.fieldSet().names()){
+            if( name.indexOf( '.' ) === -1 && !Object.keys( itemDoc ).includes( name )){
+                itemDoc[name] = undefined;
+            }
+        }
+        return itemDoc;
+    },
+
     // make sure the password, even crypted, is not returned:
     // {
     //     _id: '55QDvyxocA8XBnyTy',
@@ -137,16 +152,19 @@ export const acTransforms = {
 
                             // optional: if object became empty after cleanup, remove it
                             if( _.isObject( value ) && Object.keys( value ).length === 0 ){
+                                //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting one', key );
                                 delete node[key];
                             }
                         } else {
+                            //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting two', key );
                             delete node[key];
                         }
                     } else if( _isTraversable( value )){
                         _cleanup( value, path );
 
                         // optional cleanup of emptied objects
-                        if( _.isObject( value ) && !Array.isArray( value ) && Object.keys( value ).length === 0 ){
+                        if( _.isObject( value ) && !Array.isArray( value ) && !_.isDate( value ) && Object.keys( value ).length === 0 ){
+                            //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting three', key );
                             delete node[key];
                         }
                     }
