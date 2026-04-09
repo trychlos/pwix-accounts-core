@@ -8,6 +8,7 @@ import './check_npms.js';
 import './functions.js';
 import './methods.js';
 import './publish.js';
+import './transforms.js';
 import './users_accounts.js';
 
 // on server side, the package is now fully evaluated, so ready

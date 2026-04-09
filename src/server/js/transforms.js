@@ -1,5 +1,5 @@
 /*
- * pwix:accounts-core/src/common/helpers/ac-transforms.js
+ * pwix:accounts-core/src/server/js/transforms.js
  *
  * These are transformation functions which are only called-from and executed server-side.
  */
@@ -11,7 +11,7 @@ import { Logger } from 'meteor/pwix:logger';
 
 const logger = Logger.get();
 
-export const acTransforms = {
+AccountsCore.Transforms = {
 
     // add a DYN sub-object to documents sent to the client
     async addDyn( instance, itemDoc, options={} ){
@@ -89,7 +89,7 @@ export const acTransforms = {
         check( instance, AccountsCore.Account );
         if( itemDoc ){
             const removeRegexes = instance.opts().cleanRegexes() || [];
-            const keepRegexes = acTransforms._keepFields || [];
+            const keepRegexes = AccountsCore.Transforms._keepFields || [];
 
             // compile got regexes
             const _compile = function( regexes ){

@@ -12,7 +12,6 @@ import { Options } from 'meteor/pwix:options';
 import { acOptions } from './ac-options.class.js';
 
 import { acChecks } from '../helpers/ac-checks.js';
-import { acTransforms } from '../helpers/ac-transforms.js';
 
 const logger = Logger.get();
 
@@ -28,9 +27,6 @@ export class acAccount {
     // the mongo collection
     //  see this.opts().collection() for the collection name
     #collection = null;
-
-    // transformation functions - initialized from the constructor on server side only
-    _transforms = null;
 
     // private methods
 
@@ -48,28 +44,30 @@ export class acAccount {
         }
     }
 
-    // @locus Anywhere
+    // @locus Server
     // @summary Initialize the transformation functions
     //  Even if this is only used on server, we leave the method run in common code to make the life easier
     _initTransformationArrays(){
-        this._transforms = this._transforms || {};
-        // publication transformations
-        this._transforms.pub = this._transforms.pub || {};
-        for( const name of [ AccountsCore.C.pub.listAll.name ] ){
-            this._transforms.pub[name] = this._transforms.pub[name] || [];
-            this._transforms.pub[name].push( acTransforms.addDyn );
-            this._transforms.pub[name].push( acTransforms.addPreferredLabel );
-            this._transforms.pub[name].push( acTransforms.addUndefined );
-            this._transforms.pub[name].push( acTransforms.cleanupUserDocument );
+        if( Meteor.isServer ){
+            this._transforms = this._transforms || {};
+            // publication transformations
+            this._transforms.pub = this._transforms.pub || {};
+            for( const name of [ AccountsCore.C.pub.listAll.name ] ){
+                this._transforms.pub[name] = this._transforms.pub[name] || [];
+                this._transforms.pub[name].push( AccountsCore.Transforms.addDyn );
+                this._transforms.pub[name].push( AccountsCore.Transforms.addPreferredLabel );
+                this._transforms.pub[name].push( AccountsCore.Transforms.addUndefined );
+                this._transforms.pub[name].push( AccountsCore.Transforms.cleanupUserDocument );
+            }
+            // read transformations
+            this._transforms.read = this._transforms.read || [];
+            this._transforms.read.push( AccountsCore.Transforms.addDyn );
+            this._transforms.read.push( AccountsCore.Transforms.addPreferredLabel );
+            this._transforms.read.push( AccountsCore.Transforms.cleanupUserDocument );
+            // update transformations
+            this._transforms.update = this._transforms.update || [];
+            this._transforms.update.push( AccountsCore.Transforms.removeDyn );
         }
-        // read transformations
-        this._transforms.read = this._transforms.read || [];
-        this._transforms.read.push( acTransforms.addDyn );
-        this._transforms.read.push( acTransforms.addPreferredLabel );
-        this._transforms.read.push( acTransforms.cleanupUserDocument );
-        // update transformations
-        this._transforms.update = this._transforms.update || [];
-        this._transforms.update.push( acTransforms.removeDyn );
     }
 
     // @summary returns the preferred label for the user
@@ -457,6 +455,11 @@ export class acAccount {
     transformsPublish( name ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.transformsPublish()' );
         check( name, Match.NonEmptyString );
+        if( Meteor.isClient ){
+            return null;
+        }
+        this._transforms = this._transforms || {};
+        this._transforms.pub = this._transforms.pub || {};
         this._transforms.pub[name] = this._transforms.pub[name] || [];
         return this._transforms.pub[name];
     }
@@ -468,6 +471,10 @@ export class acAccount {
      */
     transformsRead(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.transformsRead()' );
+        if( Meteor.isClient ){
+            return null;
+        }
+        this._transforms = this._transforms || {};
         this._transforms.read = this._transforms.read || [];
         return this._transforms.read;
     }
@@ -479,6 +486,10 @@ export class acAccount {
      */
     transformsUpdate(){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.transformsUpdate()' );
+        if( Meteor.isClient ){
+            return null;
+        }
+        this._transforms = this._transforms || {};
         this._transforms.update = this._transforms.update || [];
         return this._transforms.update;
     }

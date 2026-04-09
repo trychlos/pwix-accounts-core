@@ -10,7 +10,6 @@ import { acOptions } from '../classes/ac-options.class';
 
 import { AccountsConfig } from '../helpers/accounts-config';
 import { acChecks } from '../helpers/ac-checks';
-import { acTransforms } from '../helpers/ac-transforms';
 
 import './configure.js';
 import './functions.js';
@@ -22,4 +21,3 @@ AccountsCore.Account = acAccount;
 AccountsCore.Checks = acChecks;
 AccountsCore.Config = AccountsConfig;
 AccountsCore.Options = acOptions;
-AccountsCore.Transforms = acTransforms;
