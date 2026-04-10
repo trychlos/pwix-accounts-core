@@ -310,7 +310,15 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
     On server side, the method returns the current transformation functions array for the named publication, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object>, userId<String> ): userDoc<Object>`, where:
+
+    - `options` is the options passed to the publication function with added keys:
+
+        - `type`: 'publish'
+        - `source`: the publication name,
+        - `index`: the index of the transformation function, counted from zero
+
+    - `userId` is the identifier of the user who has subscribed to the publication.
 
     Default transformation on publications is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
@@ -322,7 +330,13 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
     On server side, the method returns the current transformation functions array for read accesses, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`, where:
+
+    - `options` is the options passed to the read function - usually Mongo qualifiers - with added keys:
+
+        - `type`: 'read'
+        - `source`: the read function name,
+        - `index`: the index of the transformation function, counted from zero.
 
     Default transformation on read accesses is to add the `preferredLabel()` result inside of a `DYN` sub-object.
 
@@ -334,7 +348,13 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
     On server side, the method returns the current transformation functions array for update accesses, and let the caller examines it, reset it or update it.
 
-    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`.
+    Prototype of the transformation functions is `async fn( instance<AccountsCore.Account>, userDoc<Object>, options<Object> ): userDoc<Object>`, where:
+
+    - `options` is the options passed to the update function - maybe `orig` and Meteor qualifiers - with added keys:
+
+        - `type`: 'update'
+        - `source`: the update function name,
+        - `index`: the index of the transformation function, counted from zero.
 
     Note that writers of transformation functions for update accesses should wonder if they want modify the document itself, or clone the document before mmodifying it.
 

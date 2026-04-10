@@ -79,7 +79,7 @@ export class acAccount {
     // @returns: {Object}
     _preferredLabelByDoc( user, preferred, result ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount._preferredLabelByDoc()', arguments );
-        check( user, Object );
+        check( user, Match.ObjectIncluding({ _id: Match.NonEmptyString }));
         let mypref = preferred;
         if( !mypref || !Object.keys( AccountsCore.C.PreferredLabel ).includes( mypref )){
             mypref = this.opts().preferredLabel();
@@ -102,7 +102,7 @@ export class acAccount {
             result = { label: user.usernames[0].username, origin: AccountsCore.C.PreferredLabel.USERNAME };
 
         } else if( user.emails && user.emails[0].address ){
-            logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.PREFERREDLABEL }, 'acAccount._preferredLabelByDoc() fallback to email address name while preferred is', mypref );
+            logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.PREFERREDLABEL }, 'acAccount._preferredLabelByDoc() fallback to (truncated) email address name while preferred is', mypref );
             const words = user.emails[0].address.split( '@' );
             result = { label: words[0], origin: AccountsCore.C.PreferredLabel.EMAIL_ADDRESS };
         }
@@ -424,9 +424,8 @@ export class acAccount {
      */
     async preferredLabel( user, preferred=null ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.preferredLabel()', arguments );
-        check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: String })));
+        check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: Match.NonEmptyString })));
         let result = this._preferredLabelInitialResult( user, preferred );
-        //if( user === 'users' ) logger.warning( 'user', user, 'result', result );
         if( result ){
             // if a user identifier is provided, returns a Promise which resolves to the updated result object
             if( _.isString( user )){

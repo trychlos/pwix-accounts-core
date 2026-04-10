@@ -63,21 +63,30 @@ AccountsCore.s = {
 
     /*
      * @param {String} pubName the publication name
-     * @param {AccountsCore.Account} instance
-     * @param {Object} a user document
-     * @param {Object} options
+     * @param {AccountsCore.Account} acIinstance
+     * @param {Object} userDoc a user document
+     * @param {Object} opts the options passed to the publish function
      * @param {String} userId the requester user
      * @returns {Promise} which eventually resolves to the transformed user document
      */
-    async applyPublishTransforms( pubName, acInstance, userDoc, options={}, userId ){
+    async applyPublishTransforms( pubName, acInstance, userDoc, opts, userId ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyPublishTransforms()', arguments );
         check( pubName, Match.NonEmptyString );
         check( acInstance, AccountsCore.Account );
+        check( opts, Object );
         if( userDoc ){
+            check( userDoc, Match.ObjectIncluding({ _id: Match.NonEmptyString }));
             const transforms = acInstance.transformsPublish( pubName );
+            const options = _.merge( {}, _.cloneDeep( opts ), {
+                type: 'publish',
+                source: pubName
+            });
             //if( userDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'applyPublishTransforms()', transforms, 'userDoc', userDoc );
+            let i = 0;
             for( const fn of transforms ){
-                userDoc = await fn( acInstance, userDoc, options, userId || userDoc._id );
+                options.index = i;
+                userDoc = await fn( acInstance, userDoc, options, userId );
+                i += 1;
                 //if( userDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'applyPublishTransforms()', userDoc );
             }
         }
@@ -85,38 +94,59 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {AccountsCore.Account} instance
-     * @param {Object} a user document
-     * @param {Object} options
+     * @param {String} fname the function name
+     * @param {AccountsCore.Account} acInstance
+     * @param {Object} userDoc a user document
+     * @param {Object} opts the options passed to the read function, usually Mongo qualifiers
      * @returns {Promise} which eventually resolves to the transformed user document
      */
-    async applyReadTransforms( acInstance, userDoc, options={} ){
+    async applyReadTransforms( fname, acInstance, userDoc, opts ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyReadTransforms()', arguments );
+        check( fname, Match.NonEmptyString );
         check( acInstance, AccountsCore.Account );
+        check( opts, Object );
         //logger.debug( 'applyReadTransforms()', acInstance._transforms );
         if( userDoc ){
+            check( userDoc, Match.ObjectIncluding({ _id: Match.NonEmptyString }));
             const transforms = acInstance.transformsRead();
+            const options = _.merge( {}, _.cloneDeep( opts ), {
+                type: 'read',
+                source: fname
+            });
+            let i = 0;
             for( const fn of transforms ){
+                options.index = i;
                 userDoc = await fn( acInstance, userDoc, options );
+                i += 1;
             }
         }
         return userDoc;
     },
 
     /*
-     * @param {AccountsCore.Account} instance
-     * @param {Object} a user document
-     * @param {Object} options
+     * @param {String} fname the function name
+     * @param {AccountsCore.Account} acInstance
+     * @param {Object} userDoc a user document
+     * @param {Object} opts the options passed to the update function
      * @returns {Promise} which eventually resolves to the transformed user document
      */
-    async applyUpdateTransforms( acInstance, userDoc, options={} ){
+    async applyUpdateTransforms( fname, acInstance, userDoc, opts ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyUpdateTransforms()', arguments );
+        check( fname, Match.NonEmptyString );
         check( acInstance, AccountsCore.Account );
-        //logger.debug( 'applyUpdateTransforms()', acInstance._transforms );
+        check( opts, Object );
         if( userDoc ){
+            check( userDoc, Match.ObjectIncluding({ _id: Match.NonEmptyString }));
             const transforms = acInstance.transformsUpdate();
+            const options = _.merge( {}, _.cloneDeep( opts ), {
+                type: 'update',
+                source: fname
+            });
+            let i = 0;
             for( const fn of transforms ){
+                options.index = i;
                 userDoc = await fn( acInstance, userDoc, options );
+                i += 1;
             }
         }
         return userDoc;
@@ -164,7 +194,7 @@ AccountsCore.s = {
         } else {
             userDoc = await AccountsCore.s.byQuery({ 'emails.address': email }, options );
         }
-        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( 'byEmailAddress', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byEmailAddress( \''+email+'\' ):', userDoc );
         return userDoc;
     },
@@ -183,7 +213,7 @@ AccountsCore.s = {
             check( acInstance, AccountsCore.Account );
         }
         let userDoc = await AccountsCore.s.byQuery( acInstance, { _id: id }, options );
-        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( 'byId', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byId('+id+')', userDoc );
         return userDoc;
     },
@@ -216,7 +246,7 @@ AccountsCore.s = {
                 userDoc = candidates[0];
             }
         }
-        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( 'byQuery', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byQuery(', query, ')', userDoc );
         return userDoc;
     },
@@ -249,9 +279,9 @@ AccountsCore.s = {
         if( acInstance.opts().collection() === 'users' ){
             userDoc = await Accounts.findUserByUsername( username, options );
         } else {
-            userDoc = await AccountsCore.s.byQuery({ username }, options ) || await AccountsCore.s.byQuery({ 'usernames.username': username });
+            userDoc = await AccountsCore.s.byQuery({ username }, options ) || await AccountsCore.s.byQuery({ 'usernames.username': username }, options );
         }
-        userDoc = await AccountsCore.s.applyReadTransforms( acInstance, userDoc );
+        userDoc = await AccountsCore.s.applyReadTransforms( 'byUsername', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byUsername( \''+username+'\' )', userDoc );
         return userDoc;
     },
@@ -380,7 +410,7 @@ AccountsCore.s = {
                 await fn( userDoc, requesterId, opts );
             }
             // update transformations
-            userDoc = await AccountsCore.s.applyUpdateTransforms( acInstance, userDoc, opts );
+            userDoc = await AccountsCore.s.applyUpdateTransforms( 'updateAccount', acInstance, userDoc, opts );
             // successful updateAsync() returns the count of affected documents
             // because userDoc is used as a modifier, then the '_id' is removed by Meteor/Mongo
             const _id = userDoc._id;
