@@ -12,6 +12,10 @@
     - Define emailMaxCount(), emailMinCount() and usernameMaxCount(), usernameMinCount() which honor both haveXxx and min/max counts parameters
     - Define applyPublishTransforms(), applyReadTransforms(), applyUpdateTransforms(), updateByQuery() server functions
     - Make sure transformation functions are only available on server side
+    - Systematize the createAccount(), deleteAccount(), updateAccount() public API, both client and server-side callable
+    - Systematize the preCreateFn(), postCreateFn(), preDeleteFn(), postDeleteFn(), preUpdateFn() and postUpdateFn() server hooks
+    - Systematize the createAccountFn(), deleteAccountFn(), updateAccountFn() common hooks
+    - Now hosts the four CRUD permissions
 
 ### 2.0.0
 

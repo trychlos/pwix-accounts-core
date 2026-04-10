@@ -16,6 +16,12 @@ AccountsCore.i18n = {
                 username_empty: 'Le nom d\'utilisateur n\'est pas renseigné',
                 username_exists: 'Le nom d\'utilisateur existe déjà',
                 username_short: 'Le nom d\'utilisateur est trop court (mini=%s)'
+            },
+            permissions: {
+                create_error: 'Impossible de créer le nouveau compte',
+                create_not_allowed: 'Vous n\'êtes pas autorisé à créer un nouveau compte dans la collection',
+                delete_not_allowed: 'Vous n\'êtes pas autorisé à supprimer un compte de la collection',
+                update_not_allowed: 'Vous n\'êtes pas autorisé à modifier les comptes dans la collection'
             }
         }
     }

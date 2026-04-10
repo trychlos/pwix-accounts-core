@@ -16,6 +16,12 @@ AccountsCore.i18n = {
                 username_empty: 'Username is not set',
                 username_exists: 'Username is already in use',
                 username_short: 'Username is too short (min is %s)'
+            },
+            permissions: {
+                create_error: 'Unable to create the new account',
+                create_not_allowed: 'You are not allowed to create a new account in the collection',
+                delete_not_allowed: 'You are not allowed to remove an account from the collection',
+                update_not_allowed: 'You are not allowed to update accounts in the collection'
             }
         }
     }

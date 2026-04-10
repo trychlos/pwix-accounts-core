@@ -4,7 +4,7 @@
 
 Configurations, functions and tools used by both `pwix:accounts-ui` and `pwix:accounts-manager`, gathered here to help and mutualize the accounts management.
 
-_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createUser will fail". We so consider in this package first, and more globally in all our applications, that both the email address and the username can be used as a - case insensitive - user account identifier.
+_Note_: According to [Accounts API](https://docs.meteor.com/api/accounts), "[...] an email address may belong to at most one user". According to [Passwords API](https://docs.meteor.com/api/passwords), "[...] if there are existing users with a username or email only differing in case, createAccount will fail". We so consider in this package first, and more globally in all our applications, that both the email address and the username can be used as a - case insensitive - user account identifier.
 
 `pwix:accounts-core` provides following features:
 
@@ -132,26 +132,33 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
     - `hooksCommon`
 
-        Creating a new user account, updating or deleting it, are features managed from common-code correspondant functions `AccountsCore.createUser()`, `AccountsCore.updateUser()` and `AccountsCore.deleteUser()`. These functions are able to directly execute the relevant code for 'users' collection, and try to provide suitable defaults for other collections. But it may come time where you want take more control about the execution. Thus below (optional) hooks:
+        Creating a new user account, updating or deleting it, are features managed from common-code correspondant functions `AccountsCore.createAccount()`, `AccountsCore.updateAccount()` and `AccountsCore.deleteAccount()`. These functions are able to directly execute the relevant code for 'users' collection, and try to provide suitable defaults for other collections. But it may come time where you want take more control about the execution. Thus below (optional) hooks:
 
-        - `createUserFn`
-        - `createUserArgs`
+        - `createAccountFn`
+        - `createAccountArgs`
 
-        - `updateUserFn`
-        - `updateUserArgs`
+        - `deleteAccountFn`
+        - `deleteAccountArgs`
 
-        - `deleteUserFn`
-        - `deleteUserArgs`
+        - `updateAccountFn`
+        - `updateAccountArgs`
 
             These functions respectively creates, updates or deletes a user account.
 
             Arguments can be provided as an object, or a function which returns such an object.
 
-            Expected prototype is `async userFn( item<Object|String>, options<Object> [, userArgs<Object> ]): <Boolean>`.
+            Expected prototype is `async accountFn( userDoc<Object|String>, options<Object> [, accountArgs<Any> ] ): <Object>`.
 
-        The arguments object may contain following keys:
+            The returned object should be the same than those of the common entry point function below.
 
-        - `instance`: the instance name, defaulting to 'users'
+            The `options` object may contain following keys:
+
+            - `instance`: the AccountsCore.Account instance, defaulting to 'users'
+            - `userId`: the user identifier responsible of the request (none of them can be anonymous unless maybe the createAccountFn).
+
+            When passed to `updateAccountFn()`, the `options` object may also contain:
+
+            - `orig`: the original document.
 
         All `hooksCommon` functions which are provided must be callable both from client and server sides.
 
@@ -159,18 +166,16 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
         An optional object which gathers server-side hooks:
 
-        - `preInsertFn`
-        - `postInsertFn`
+        - `async preCreateFn( userDoc<Object>, userId<String> ): <void>`
+        - `async postCreateFn( userDoc<Object>, userId<String> ): <void>`
 
-        - `preUpdateFn`
-        - `postUpdateFn`
+        - `async preDeleteFn( userDoc<Object>, userId<String> ): <void>`
+        - `async postDeleteFn( userDoc<Object>, userId<String> ): <void>`
 
-        - `preDeleteFn`
-        - `postDeleteFn`
+        - `async preUpdateFn( userDoc<Object>, userId<String>, opts<Object> ): <void>`
+        - `async postUpdateFn( userDoc<Object>, userId<String>, opts<Object> ): <void>`
 
-            Expected prototype is `async fn( userDoc<Object>, options<Object> ): <void>`
-
-            These functions can modify in place the user document.
+            These functions can modify in place the `userDoc` document.
 
             The `pre`functions should throw an error if they want cancel the operation.
 
@@ -417,11 +422,29 @@ The configuration of the package.
 
 See [below](#configuration).
 
-##### `async AccountsCore.createUser( userDoc<Object>, options<Object> ): <Boolean>`
+##### `async AccountsCore.createAccount( instance<Account|String>, userDoc<Object>, requesterId:<String> ): <Boolean>`
 
-Available both on the client and the server.
+The entry point for all new accounts creation. It is available both on the client and the server.
 
-##### `async AccountsCore.deleteUser( user<Object|String>, options<Object> ): <Boolean>`
+This call cannot be anonymous, and the `requesterId` is checked against the `pwix.AccountsCore.feat.create` permission.
+
+It then calls the `hooksCommon.createAccountFn()` if defined, or delegates to `Accounts.createAccount()` for the `users` collection, or at last just insert the given user document in the given collection.
+
+Whatever the side of the originating call, the creation flow eventually arrives on server-side: update transformations are applied and server hooks `preCreateFn` and `postCreateFn` are honored.
+
+The function returns an object with:
+
+- on success:
+
+    - `_id`: the newly inserted identifier
+
+- on failure:
+
+    - `reason`: the reason of the failure
+or
+    - `reason_i18n`: the string index of the localized reason of the failure
+
+##### `async AccountsCore.deleteAccount( instance<Account|String>, userDoc<Object>, requesterId:<String> ): <Boolean>`
 
 Available both on the client and the server.
 
@@ -439,7 +462,13 @@ The provided `args` argument MUST contain an `instance` key with an instance of 
 
 Available both on the client and the server.
 
-##### `async AccountsCore.updateUser( userDoc<Object>, options<Object> ): <Boolean>`
+##### `async AccountsCore.updateAccount( instance<Account|String>, userDoc<Object>, requesterId:<String>, opts<Object> ): <Boolean>`
+
+`opts` is an optional options object wich may contain:
+
+- `orig`: the original user document, which let the server-side function check for unchangeness
+
+- other Meteor options suitable for updateAsync() Mongo function.
 
 Available both on the client and the server.
 
@@ -483,7 +512,19 @@ This package can take advantage of `pwix:permissions` package to manage the user
 
 It defines following tasks:
 
+- `pwix.accounts_core.feat.create`: create a new account, with additional arguments as an object with following keys:
+
+    - instance: the `AccountsCore.Account` instance
+
+- `pwix.accounts_core.feat.delete`: delete an account, with additional arguments as an object with following keys:
+
+    - instance: the `AccountsCore.Account` instance
+
 - `pwix.accounts_core.feat.list`: display all accounts, with additional arguments as an object with following keys:
+
+    - instance: the `AccountsCore.Account` instance
+
+- `pwix.accounts_core.feat.update`: update an account, with additional arguments as an object with following keys:
 
     - instance: the `AccountsCore.Account` instance
 

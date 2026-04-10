@@ -6,8 +6,8 @@
  * 
  * AccountsCommon:
  *  actions
- *      createUser
- *      createUserVerifyingEmail
+ *      createAccount
+ *      createAccountVerifyingEmail
  *      sendResetPasswordEmail
  *      sendEnrollmentEmail
  *      sendVerificationEmail

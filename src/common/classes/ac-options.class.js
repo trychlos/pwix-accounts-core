@@ -26,16 +26,16 @@ export class acOptions extends Options.Base {
         haveEmailAddress: AccountsCore.C.Identifier.MANDATORY,
         haveUsername: AccountsCore.C.Identifier.NONE,
         hooksCommon: {
-            createUserFn: null,
-            createUserArgs: null,
-            updateUserFn: null,
-            updateUserArgs: null,
-            deleteUserFn: null,
-            deleteUserArgs: null
+            createAccountFn: null,
+            createAccountArgs: null,
+            updateAccountFn: null,
+            updateAccountArgs: null,
+            deleteAccountFn: null,
+            deleteAccountArgs: null
         },
         hooksServer: {
-            preInsertFn: null,
-            postInsertFn: null,
+            preCreateFn: null,
+            postCreateFn: null,
             preUpdateFn: null,
             postUpdateFn: null,
             preDeleteFn: null,
@@ -167,62 +167,72 @@ export class acOptions extends Options.Base {
 
     /**
      * Getter/Setter
-     * @param {Object|Function} value the createUserArgs common hook arguments
+     * @param {Object|Function} value the createAccountArgs common hook arguments
      * @returns {Object}
      */
-    hooksCommon_createUserArgs( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_createUserArgs()', arguments );
-        return this.base_gsObjectFn( 'hooksCommon.createUserArgs', value, { default: null });
+    hooksCommon_createAccountArgs( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_createAccountArgs()', arguments );
+        return this.base_gsObjectFn( 'hooksCommon.createAccountArgs', value, { default: null });
     }
 
     /**
      * Getter/Setter
-     * @param {Function} value the createUserFn common hook
+     * @param {Function} value the createAccountFn common hook
      * @returns {Function}
      */
-    hooksCommon_createUserFn( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_createUserFn()', arguments );
-        return this.base_gsFn( 'hooksCommon.createUserFn', value, { default: null });
+    hooksCommon_createAccountFn( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_createAccountFn()', arguments );
+        return this.base_gsFn( 'hooksCommon.createAccountFn', value, { default: null });
     }
 
     /**
      * Getter/Setter
-     * @param {Object|Function} value the deleteUserArgs common hook arguments
+     * @param {Object|Function} value the deleteAccountArgs common hook arguments
      * @returns {Object}
      */
-    hooksCommon_deleteUserArgs( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_deleteUserArgs()', arguments );
-        return this.base_gsObjectFn( 'hooksCommon.deleteUserArgs', value, { default: null });
+    hooksCommon_deleteAccountArgs( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_deleteAccountArgs()', arguments );
+        return this.base_gsObjectFn( 'hooksCommon.deleteAccountArgs', value, { default: null });
     }
 
     /**
      * Getter/Setter
-     * @param {Function} value the deleteUserFn common hook
+     * @param {Function} value the deleteAccountFn common hook
      * @returns {Function}
      */
-    hooksCommon_deleteUserFn( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_deleteUserFn()', arguments );
-        return this.base_gsFn( 'hooksCommon.deleteUserFn', value, { default: null });
+    hooksCommon_deleteAccountFn( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_deleteAccountFn()', arguments );
+        return this.base_gsFn( 'hooksCommon.deleteAccountFn', value, { default: null });
     }
 
     /**
      * Getter/Setter
-     * @param {Object|Function} value the updateUserArgs common hook arguments
+     * @param {Object|Function} value the updateAccountArgs common hook arguments
      * @returns {Object}
      */
-    hooksCommon_updateUserArgs( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_updateUserArgs()', arguments );
-        return this.base_gsObjectFn( 'hooksCommon.updateUserArgs', value, { default: null });
+    hooksCommon_updateAccountArgs( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_updateAccountArgs()', arguments );
+        return this.base_gsObjectFn( 'hooksCommon.updateAccountArgs', value, { default: null });
     }
 
     /**
      * Getter/Setter
-     * @param {Function} value the updateUserFn common hook
+     * @param {Function} value the updateAccountFn common hook
      * @returns {Function}
      */
-    hooksCommon_updateUserFn( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_updateUserFn()', arguments );
-        return this.base_gsFn( 'hooksCommon.updateUserFn', value, { default: null });
+    hooksCommon_updateAccountFn( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksCommon_updateAccountFn()', arguments );
+        return this.base_gsFn( 'hooksCommon.updateAccountFn', value, { default: null });
+    }
+
+    /**
+     * Getter/Setter
+     * @param {Function} value the postCreateFn server hook
+     * @returns {Function}
+     */
+    hooksServer_postCreateFn( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksServer_postCreateFn()', arguments );
+        return this.base_gsFn( 'hooksServer.postCreateFn', value, { default: null });
     }
 
     /**
@@ -237,16 +247,6 @@ export class acOptions extends Options.Base {
 
     /**
      * Getter/Setter
-     * @param {Function} value the postInsertFn server hook
-     * @returns {Function}
-     */
-    hooksServer_postInsertFn( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksServer_postInsertFn()', arguments );
-        return this.base_gsFn( 'hooksServer.postInsertFn', value, { default: null });
-    }
-
-    /**
-     * Getter/Setter
      * @param {Function} value the postUpdateFn server hook
      * @returns {Function}
      */
@@ -257,22 +257,22 @@ export class acOptions extends Options.Base {
 
     /**
      * Getter/Setter
+     * @param {Function} value the preCreateFn server hook
+     * @returns {Function}
+     */
+    hooksServer_preCreateFn( value ){
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksServer_preCreateFn()', arguments );
+        return this.base_gsFn( 'hooksServer.preCreateFn', value, { default: null });
+    }
+
+    /**
+     * Getter/Setter
      * @param {Function} value the preDeleteFn server hook
      * @returns {Function}
      */
     hooksServer_preDeleteFn( value ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksServer_preDeleteFn()', arguments );
         return this.base_gsFn( 'hooksServer.preDeleteFn', value, { default: null });
-    }
-
-    /**
-     * Getter/Setter
-     * @param {Function} value the preInsertFn server hook
-     * @returns {Function}
-     */
-    hooksServer_preInsertFn( value ){
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acOptions.hooksServer_preInsertFn()', arguments );
-        return this.base_gsFn( 'hooksServer.preInsertFn', value, { default: null });
     }
 
     /**

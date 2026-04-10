@@ -67,39 +67,57 @@ AccountsCore.areSame = function( userA, userB ){
 
 /**
  * @summary Creates a new user account in the collection
- *  This common-code function honor createUserFn common-code hook
- * @param {String} user the user document
- * @param {Object} options an optional options object with following keys:
- *  - instance, the name of the instance, defaulting to 'users'
- * @returns truthy of falsy value
+ *  This common-code function:
+ *  - check the permission of requesterId against
+ *  - honors createAccountFn() common hooks if defined
+ *  - delegates to Accounts.createAccount() if 'users' collection on client side and the package is present
+ *  - else just insert the user document into the collection
+ *  It is expected that this function be the entry point of the package for the feature, whether it is called from client or server-side.
+ *  Other internal-level functions notably may not care of permissions.
+ * NB:
+ *  We do not force here a defined requesterId as an application may want allow signup
+ * 
+ * @param {String|AccountsCore.Account} instance the AccountsCore.Account instance or the AccountsCore.Account name
+ * @param {String} userDoc the user document to be inserted
+ * @param {String} requesterId the identifier of the requester user
+ * 
+ * @returns {Object} either '_id' or 'reason' or 'reason_i18n'
  */
-AccountsCore.createUser = async function( userDoc, options={} ){
+AccountsCore.createAccount = async function( instance, userDoc, requesterId ){
+    check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
     check( userDoc, Object );
-    let instance = options.instance || USERS;
-    if( _.isString( instance )){
-        instance = AccountsCore.getInstance( instance );
+    logger.debug( 'createAccount()', arguments );
+    // get AccountsCore.Account instance
+    let acInstance = instance;
+    if( _.isString( acInstance )){
+        acInstance = AccountsCore.getInstance( acInstance );
     }
-    check( instance, AccountsCore.Account );
-    let res;
-
-    // if a createUser hook is defined, then call it
-    const fn = instance.opts().hooksCommon_createUserFn();
+    check( acInstance, AccountsCore.Account );
+    // check permission
+    if( !await AccountsCore.isAllowed( 'pwix.accounts_core.feat.create', requesterId, { instance: acInstance })){
+        return { reason_i18n: 'permissions.create_not_allowed' };
+    }
+    // honors createAccountFn() common hook if defined
+    const fn = acInstance.opts().hooksCommon_createAccountFn();
     if( fn ){
         try {
-            res = await fn( userDoc, options, instance.opts().hooksCommon_createUserArgs());
+            return await fn( userDoc, { instance: acInstance, userId: requesterId }, instance.opts().hooksCommon_createAccountArgs());
         } catch( e ){
             logger.error( e );
-            res = false;
+            return { reason: e.error };
         }
-
-        // else rely on AccountsBase for 'users' collection
-    //  see https://docs.meteor.com/api/accounts.html#Accounts-createUser
-    } else if( instance.name() === USERS ){
+    }
+    // rely on AccountsBase for 'users' collection
+    //  see https://docs.meteor.com/api/accounts.html#Accounts-createAccount
+    //  NB: contrarily to what say the doc, the actual code doesn't return anything
+    //  see https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_client.js#L105
+    //  NB: do not auto connect here - this must be handled by the caller
+    if( acInstance.name() === USERS ){
         const createOpts = {};
         // have a username ?
         if( userDoc.username ){
             createOpts.username = userDoc.username;
-        } else if( userDoc.usernames[0].username ){
+        } else if( userDoc.usernames && userDoc.usernames[0].username ){
             createOpts.username = userDoc.usernames[0].username;
         }
         // have a password ?
@@ -107,56 +125,82 @@ AccountsCore.createUser = async function( userDoc, options={} ){
             createOpts.password = userDoc.password;
         }
         // have an email address ?
-        if( userDoc.emails[0].address ){
+        if( userDoc.email ){
+            createOpts.email = userDoc.email;
+        } else if( userDoc.emails && userDoc.emails[0].address ){
             createOpts.email = userDoc.emails[0].address;
         }
         try {
-            res = await Accounts.createUserAsync( createOpts );
+            if( Meteor.isClient ){
+                await Meteor.callAsync( 'pwix.AccountsCore.m.createUserAsync', createOpts );
+            } else {
+                await Accounts.createUserAsync( createOpts );
+            }
+            const _item = await acInstance.byAnyIdentifier( createOpts.email || createOpts.username );
+            if( _item ){
+                return { _id: _item._id };
+            } else {
+                return { reason_i18n: 'permissions.create_account' };
+            }
         } catch( e ){
             logger.error( e );
-            res = false;
+            return { reason: e.error };
         }
 
     // else do our best
+    //  i.e. just insert the user document into the named accounts collection
     } else if( Meteor.isClient ){
-        res = await Meteor.callAsync( 'pwix.AccountsCore.m.insertAccount', instance.name(), userDoc, options );
-
-    } else {
-        res = await AccountsCore.s.insertAccount( instance, userDoc, options );
+        return await Meteor.callAsync( 'pwix.AccountsCore.m.createAccount', acInstance.name(), userDoc, requesterId );
     }
-
-    return res;
+    return await AccountsCore.s.createAccount( acInstance, userDoc, requesterId );
 }
 
 /**
  * @summary Delete a user account from the collection
- *  This common-code function honor deleteUserFn common-code hook
- * @param {Object|String} user either a user identfier or a user document
- * @param {Object} options an optional options object with following keys:
- *  - instance, the name of the instance, defaulting to 'users'
+ *  This common-code function:
+ *  - check the permission of requesterId against
+ *  - honors deleteAccountFn() common hooks if defined
+ *  - delete the user document from the collection
+ *  It is expected that this function be the entry point of the package for the feature, whether it is called from client or server-side.
+ *  Other internal-level functions notably may not care of permissions.
+ * 
+ * @param {String|AccountsCore.Account} instance the AccountsCore.Account instance or the AccountsCore.Account name
+ * @param {String} userDoc the user document to be inserted
+ * @param {String} requesterId the identifier of the requester user
+ * 
+ * @returns {Object} either 'count' or 'reason' or 'reason_i18n'
  */
-AccountsCore.deleteUser = async function( user, options={} ){
+AccountsCore.deleteAccount = async function( instance, user, requesterId ){
+    check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
     check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: Match.NonEmptyString })));
-    let instance = options.instance || USERS;
-    if( _.isString( instance )){
-        instance = AccountsCore.getInstance( instance );
+    check( requesterId, Match.NonEmptyString );
+    // get AccountsCore.Account instance
+    let acInstance = instance;
+    if( _.isString( acInstance )){
+        acInstance = AccountsCore.getInstance( acInstance );
     }
-    check( instance, AccountsCore.Account );
+    check( acInstance, AccountsCore.Account );
+    // check permission
+    if( !await AccountsCore.isAllowed( 'pwix.accounts_core.feat.delete', requesterId, { instance: acInstance, id: user._id || user })){
+        return { reason_i18n: 'permissions.delete_not_allowed' };
+    }
     let res;
-    const fn = instance.opts().hooksCommon_deleteUserFn();
+    // honors deleteAccountFn() common hook if defined
+    const fn = instance.opts().hooksCommon_deleteAccountFn();
     if( fn ){
         try {
-            res = await fn( user, options, instance.opts().hooksCommon_deleteUserArgs());
+            return await fn( user, { instance: acInstance, userId: requesterId }, instance.opts().hooksCommon_deleteAccountArgs());
         } catch( e ){
             logger.error( e );
-            res = false;
+            return { reason: e.error };
         }
-    } else if( Meteor.isClient ){
-        res = await Meteor.callAsync( 'pwix.AccountsCore.m.deleteAccount', instance.name(), user, options );
-    } else {
-        res = await AccountsCore.s.deleteAccount( instance, user, options );
     }
-    return res;
+    // else do our best
+    //  i.e. just delete the user document from the named accounts collection
+    if( Meteor.isClient ){
+        return await Meteor.callAsync( 'pwix.AccountsCore.m.deleteAccount', acInstance.name(), user, requesterId );
+    }
+    return await AccountsCore.s.deleteAccount( acInstance, user, requesterId );
 }
 
 /**
@@ -189,58 +233,78 @@ AccountsCore.getInstance = function( instance ){
  * @param {String} userId
  * @param {Any} args an object with following keys:
  *  - instance:
- *    > either a string which is an acAccount instance name
- *    > or the acAccount instance itself.
+ *    > either a string which is an AccountsCore.Account instance name
+ *    > or the AccountsCore.Account instance itself.
  * @returns {Boolean} true if the current user is allowed to do the action
  *  NB: default is to allow all if task action is not provided
  */
 AccountsCore.isAllowed = async function( action, userId=null, args={} ){
-    if( !action || !_.isString( action )){
-        logger.error( 'isAllowed() expects \'action\' be a non-empty string, got', action, 'throwing...' );
-        throw new Error( 'Bad argument: action' );
-    }
-    if( !userId ){
-        return false;
-    }
+    check( action, Match.NonEmptyString );
+    // we leave pass here an unset/undefined userId - this is to the application to decide
+    // typical use case: an application let any user sign up
     let allowed = true;
-    const acInstance = AccountsCore.getInstance( args.instance );
-    if( acInstance ){
-        const fn = acInstance.opts().allowFn();
-        if( fn ){
-            args.instance = acInstance;
-            allowed = await fn( ...arguments );
-        }
+    let acInstance = args.instance;
+    if( _.isString( acInstance )){
+        acInstance = AccountsCore.getInstance( acInstance );
+    }
+    check( acInstance, AccountsCore.Account );
+    const fn = acInstance.opts().allowFn();
+    if( fn ){
+        args.instance = acInstance;
+        allowed = await fn( ...arguments );
     }
     return allowed;
 };
 
 /**
  * @summary Update a user account in the collection
- *  This common-code function honor updateUserFn common-code hook
- * @param {Object} user the user document
- * @param {Object} options an optional options object with following keys:
- *  - instance, the name of the instance, defaulting to 'users'
+ *  This common-code function:
+ *  - check the permission of requesterId against
+ *  - honors updateAccountFn() common hooks if defined
+ *  - update the user document into the collection
+ *  It is expected that this function be the entry point of the package for the feature, whether it is called from client or server-side.
+ *  Other internal-level functions notably may not care of permissions.
+ * 
+ * @param {String|AccountsCore.Account} instance the AccountsCore.Account instance or the AccountsCore.Account name
+ * @param {String} userDoc the user document to be inserted
+ * @param {String} requesterId the identifier of the requester user
+ * @param {Object} opts an optional options object with following keys:
+ *  - orig: the original document, which, when set, let us check that it has not been modified in the mean time
+ * + Meteor options to updateAsync():
+ *  - multi: whether to update multiple documents, defaulting to false
+ *  - upsert: whether to insert the document if it doesn't exist yet, defaulting to false
+ *  - arrayFilters: specify which fields to modify in an array.
+ * 
+ * @returns {Object} either 'count' or 'reason' or 'reason_i18n'
  */
-AccountsCore.updateUser = async function( userDoc, options={} ){
-    check( userDoc, Object );
-    let instance = options.instance || USERS;
-    if( _.isString( instance )){
-        instance = AccountsCore.getInstance( instance );
+AccountsCore.updateAccount = async function( instance, userDoc, requesterId, opts={} ){
+    check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
+    check( userDoc, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: Match.NonEmptyString })));
+    check( requesterId, Match.NonEmptyString );
+    // get AccountsCore.Account instance
+    let acInstance = instance;
+    if( _.isString( acInstance )){
+        acInstance = AccountsCore.getInstance( acInstance );
     }
-    check( instance, AccountsCore.Account );
-    let res;
-    const fn = instance.opts().hooksCommon_updateUserFn();
+    check( acInstance, AccountsCore.Account );
+    // check permission
+    if( !await AccountsCore.isAllowed( 'pwix.accounts_core.feat.update', requesterId, { instance: acInstance, id: userDoc._id || userDoc })){
+        return { reason_i18n: 'permissions.update_not_allowed' };
+    }
+    const fn = instance.opts().hooksCommon_updateAccountFn();
     if( fn ){
         try {
-            res = await fn( userDoc, options, instance.opts().hooksCommon_updateUserArgs());
+            opts.instance = acInstance;
+            opts.userId = requesterId;
+            return await fn( userDoc, opts, instance.opts().hooksCommon_updateAccountArgs());
         } catch( e ){
             logger.error( e );
-            res = false;
+            return { reason: e.error };
         }
-    } else if( Meteor.isClient ){
-        res = await Meteor.callAsync( 'pwix.AccountsCore.m.updateccount', instance.name(), userDoc, options );
-    } else {
-        res = await AccountsCore.s.deleteAccount( instance, userDoc, options );
     }
-    return res;
+    // just update the user document in the collection
+    if( Meteor.isClient ){
+        return await Meteor.callAsync( 'pwix.AccountsCore.m.updateAccount', acInstance.name(), userDoc, requesterId, opts );
+    }
+    return await AccountsCore.s.updateAccount( acInstance, userDoc, requesterId, opts );
 }
