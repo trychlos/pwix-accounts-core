@@ -100,7 +100,7 @@ AccountsCore.s = {
      * @param {Object} opts the options passed to the read function, usually Mongo qualifiers
      * @returns {Promise} which eventually resolves to the transformed user document
      */
-    async applyReadTransforms( fname, acInstance, userDoc, opts ){
+    async applyReadTransforms( fname, acInstance, userDoc, opts={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyReadTransforms()', arguments );
         check( fname, Match.NonEmptyString );
         check( acInstance, AccountsCore.Account );
@@ -130,7 +130,7 @@ AccountsCore.s = {
      * @param {Object} opts the options passed to the update function
      * @returns {Promise} which eventually resolves to the transformed user document
      */
-    async applyUpdateTransforms( fname, acInstance, userDoc, opts ){
+    async applyUpdateTransforms( fname, acInstance, userDoc, opts={} ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'applyUpdateTransforms()', arguments );
         check( fname, Match.NonEmptyString );
         check( acInstance, AccountsCore.Account );
