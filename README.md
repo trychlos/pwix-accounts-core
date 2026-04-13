@@ -602,7 +602,7 @@ Remind too that Meteor packages are instanciated at application level. They are 
 
 In accordance with advices from [the Meteor Guide](https://guide.meteor.com/writing-atmosphere-packages.html#peer-npm-dependencies), we do not hardcode NPM dependencies in `package.js`. Instead we check npm versions of installed packages at runtime, on server startup, in development environment.
 
-Dependencies as of v 2.0.0:
+Dependencies as of v 2.1.0:
 
 ```js
     'email-validator': '^2.0.4',
@@ -632,4 +632,4 @@ In case of support or error, please report your issue request to our [Issues tra
 
 ---
 P. Wieser
-- Last updated on 2026, Apr. 2nd
+- Last updated on 2026, Apr. 13rd
