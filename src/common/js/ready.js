@@ -32,5 +32,5 @@ AccountsCore.ready = function( b ){
 }
 
 Tracker.autorun(() => {
-    logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.READY }, 'ready', AccountsCore.ready());
+    logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.READY }, 'AccountsCore.ready()', AccountsCore.ready());
 });

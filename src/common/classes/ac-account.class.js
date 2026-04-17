@@ -181,7 +181,7 @@ export class acAccount {
             return instance;
         }
 
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.INSTANCE }, 'acAccount() instanciated for', this.opts().name());
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.INSTANCE }, 'acAccount() instanciated for', this.name());
 
         // define the Mongo collection
         if( this.opts().collection() === 'users' ){
@@ -198,6 +198,8 @@ export class acAccount {
 
         // register this new instance
         AccountsCore._setInstance( this.name(), this );
+
+        if( this.name() === 'users' ) logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.USERS }, 'acAccount() instanciated for \'users\'' );
 
         return this;
     }

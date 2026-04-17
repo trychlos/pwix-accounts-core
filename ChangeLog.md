@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - Define new AccountsCore.C.Verbose.USERS constant to be verbose when the 'users' collection is instanciated
 
 ### 2.1.0
 

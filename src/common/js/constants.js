@@ -45,7 +45,8 @@ AccountsCore.C = {
         FUNCTIONS:      0x01 << 1,
         SERVER:         0x01 << 2,
         INSTANCE:       0x01 << 3,
-        READY:          0x01 << 4
+        READY:          0x01 << 4,
+        USERS:          0x01 << 5
     },
 
     // what to do when email cannot be sent
