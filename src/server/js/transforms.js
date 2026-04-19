@@ -22,6 +22,19 @@ AccountsCore.Transforms = {
         return itemDoc;
     },
 
+    // add to DYN a 'services' array which contains the initial keys
+    //  hoping that at least of them is an authentication service
+    async addAuthServices( instance, itemDoc, options={} ){
+        check( instance, AccountsCore.Account );
+        check( itemDoc, Object );
+        check( options, Object );
+        itemDoc.DYN.services = itemDoc.DYN.services || [];
+        for( const key of Object.keys( itemDoc.services || {} )){
+            itemDoc.DYN.services.push( key );
+        }
+        return itemDoc;
+    },
+
     // compute the preferred label
     async addPreferredLabel( instance, itemDoc, options={} ){
         check( instance, AccountsCore.Account );
@@ -74,19 +87,15 @@ AccountsCore.Transforms = {
     // 
     // Note: do NOT expose this function in client-side world. This would be a security risk as a malicious user could just override it.
     ///
-    /*
-    Replaced by cleanRegexes instanciation argument as of v2.0
-    sensitiveFields: [
-        'services.resume',
-        'services.password',
-        'profile'
-    ],
-    */
     _keepFields: [
-        'services\.password\.reset'       // needed by AccountsUI to check and reset the password
+        // services.password.reset is needed by AccountsUI to check and reset the password
+        // services.password is needed by IzIAM to be able to identify the source of authority of a user 
+        //  but acOptions.cleanRegexes removes services.password other subkeys
+        'services\.password\.reset'
     ],
     async cleanupUserDocument( instance, itemDoc, options={} ){
         check( instance, AccountsCore.Account );
+        const debugId = 'fCLx5S2jHQSPhRA5A';
         if( itemDoc ){
             const removeRegexes = instance.opts().cleanRegexes() || [];
             const keepRegexes = AccountsCore.Transforms._keepFields || [];
@@ -152,19 +161,19 @@ AccountsCore.Transforms = {
 
                             // optional: if object became empty after cleanup, remove it
                             if( _.isObject( value ) && Object.keys( value ).length === 0 ){
-                                //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting one', key );
+                                //if( itemDoc._id === debugId ) logger.debug( 'deleting one', key );
                                 delete node[key];
                             }
                         } else {
-                            //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting two', key );
+                            //if( itemDoc._id === debugId ) logger.debug( 'deleting two', key );
                             delete node[key];
                         }
                     } else if( _isTraversable( value )){
                         _cleanup( value, path );
 
-                        // optional cleanup of emptied objects
+                        // cleanup emptied objects
                         if( _.isObject( value ) && !Array.isArray( value ) && !_.isDate( value ) && Object.keys( value ).length === 0 ){
-                            //if( itemDoc._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'deleting three', key );
+                            //if( itemDoc._id === debugId ) logger.debug( 'deleting three', key );
                             delete node[key];
                         }
                     }
@@ -181,5 +190,11 @@ AccountsCore.Transforms = {
         const clone = _.cloneDeep( itemDoc );
         delete clone.DYN;
         return clone;
+    },
+
+    // remove the 'services' object as we don't want update it ourselves here
+    async removeServices( instance, itemDoc, options={} ){
+        delete itemDoc.services;
+        return itemDoc;
     }
 };

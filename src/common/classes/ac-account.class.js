@@ -56,6 +56,7 @@ export class acAccount {
                 this._transforms.pub[name] = this._transforms.pub[name] || [];
                 this._transforms.pub[name].push( AccountsCore.Transforms.addDyn );
                 this._transforms.pub[name].push( AccountsCore.Transforms.addPreferredLabel );
+                this._transforms.pub[name].push( AccountsCore.Transforms.addAuthServices );
                 this._transforms.pub[name].push( AccountsCore.Transforms.addUndefined );
                 this._transforms.pub[name].push( AccountsCore.Transforms.cleanupUserDocument );
             }
@@ -63,10 +64,12 @@ export class acAccount {
             this._transforms.read = this._transforms.read || [];
             this._transforms.read.push( AccountsCore.Transforms.addDyn );
             this._transforms.read.push( AccountsCore.Transforms.addPreferredLabel );
+            this._transforms.read.push( AccountsCore.Transforms.addAuthServices );
             this._transforms.read.push( AccountsCore.Transforms.cleanupUserDocument );
             // update transformations
             this._transforms.update = this._transforms.update || [];
             this._transforms.update.push( AccountsCore.Transforms.removeDyn );
+            this._transforms.update.push( AccountsCore.Transforms.removeServices );
         }
     }
 

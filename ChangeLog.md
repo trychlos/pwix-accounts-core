@@ -7,6 +7,7 @@
     Release date: 
 
     - Define new AccountsCore.C.Verbose.USERS constant to be verbose when the 'users' collection is instanciated
+    - Update cleanup transformation to keep the source of authentication in the user document
 
 ### 2.1.0
 
