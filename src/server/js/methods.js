@@ -4,6 +4,7 @@
 
 import _ from 'lodash';
 
+import { Accounts } from 'meteor/accounts-base';
 import { check, Match } from 'meteor/check';
 import { Logger } from 'meteor/pwix:logger';
 
@@ -72,6 +73,28 @@ Meteor.methods({
             logger.error( e );
             return { reason: e.error };
         }
+    },
+
+    // a method which reproduces the Accounts.sendVerificationEmail() arguments so that we can call from the client
+    //  see https://docs.meteor.com/api/accounts.html#Accounts-sendVerificationEmail
+    //  returns {
+    //      {
+    //          "email": <the destination email>,
+    //          "user": {
+    //              <the user document>
+    //          },
+    //          "token": "RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93",
+    //          "url": "http://localhost:3003/#/verify-email/RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93",
+    //          "options": {
+    //              "to": "mmmm@mmm.mm",
+    //              "from": "AppMaster <noreply@localhost",
+    //              "subject": "How to verify email address on izIAM",
+    //              "text": "Hello,\n\nTo verify your account email, simply click the link below.\n\nhttp://localhost:3003/#/verify-email/RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93\n\nThank you.\n"
+    //          }
+    //      }
+    // }
+    async 'pwix.AccountsCore.m.sendVerificationEmail'( userId, email, extraData, extraParams ){
+        return await Accounts.sendVerificationEmail( userId, email, extraData, extraParams );
     },
 
     // update an account
