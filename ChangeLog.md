@@ -9,6 +9,7 @@
     - Define new AccountsCore.C.Verbose.USERS constant to be verbose when the 'users' collection is instanciated
     - Update cleanup transformation to keep the source of authentication in the user document
     - Define new 'pwix.AccountsCore.m.sendVerificationEmail()' method
+    - Define new 'pwix.AccountsCore.m.sendResetPasswordEmail()' method
 
 ### 2.1.0
 

@@ -94,7 +94,7 @@ AccountsCore.s = {
     },
 
     /*
-     * @param {String} fname the function name
+     * @param {String} fname the calling function name
      * @param {AccountsCore.Account} acInstance
      * @param {Object} userDoc a user document
      * @param {Object} opts the options passed to the read function, usually Mongo qualifiers

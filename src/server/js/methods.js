@@ -75,7 +75,30 @@ Meteor.methods({
         }
     },
 
-    // a method which reproduces the Accounts.sendVerificationEmail() arguments so that we can call from the client
+    // a method which reproduces the Accounts.sendResetPasswordEmail() arguments so that we can call it from the client
+    //  see https://docs.meteor.com/api/accounts.html#Accounts-sendResetPasswordEmail
+    //  returns {
+    //      {
+    //          "email": <the destination email>,
+    //          "user": {
+    //              <the user document>
+    //          },
+    //          "token": "RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93",
+    //          "url": "http://localhost:3003/#/verify-email/RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93",
+    //          "options": {
+    //              "to": "mmmm@mmm.mm",
+    //              "from": "AppMaster <noreply@localhost",
+    //              "subject": "How to verify email address on izIAM",
+    //              "text": "Hello,\n\nTo verify your account email, simply click the link below.\n\nhttp://localhost:3003/#/verify-email/RYgpO2xzZLdm-LULNjTSZQvnP2jsl7vg-JRw0KBCD93\n\nThank you.\n"
+    //          }
+    //      }
+    // }
+    // Note that extraParams may (should) contain the name of the acAccount instance (say 'acName')
+    async 'pwix.AccountsCore.m.sendResetPasswordEmail'( userId, email, extraData, extraParams ){
+        return await Accounts.sendResetPasswordEmail( userId, email, extraData, extraParams );
+    },
+
+    // a method which reproduces the Accounts.sendVerificationEmail() arguments so that we can call it from the client
     //  see https://docs.meteor.com/api/accounts.html#Accounts-sendVerificationEmail
     //  returns {
     //      {
@@ -93,6 +116,7 @@ Meteor.methods({
     //          }
     //      }
     // }
+    // Note that extraParams may (should) contain the name of the acAccount instance (say 'acName')
     async 'pwix.AccountsCore.m.sendVerificationEmail'( userId, email, extraData, extraParams ){
         return await Accounts.sendVerificationEmail( userId, email, extraData, extraParams );
     },
