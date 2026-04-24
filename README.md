@@ -177,7 +177,7 @@ But, for compatibility and simplicity reasons, doing nothing in your application
 
             These functions can modify in place the `userDoc` document.
 
-            The `pre`functions should throw an error if they want cancel the operation.
+            The `pre`-functions should throw an error if they want cancel the operation.
 
         These hooks are only called from server side.
 
