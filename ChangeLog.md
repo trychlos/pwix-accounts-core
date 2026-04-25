@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - Improve rationale of addUndefined() transformation
 
 ### 2.2.0
 

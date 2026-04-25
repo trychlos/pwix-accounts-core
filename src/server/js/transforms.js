@@ -44,7 +44,12 @@ AccountsCore.Transforms = {
         return itemDoc;
     },
 
-    // known fields which are not set are 'undefined' so that they provide the client a reactivity way
+    // make sure that each defined field appears in the returned item, as least as 'undefined' when unset
+    // Rationale: when a publication send a record where not all fields are set, the unset fields are just not part of the sent document
+    //  on client-side, the field which is not present is not modified in the minimongo
+    //  in tabular displays, field presence is not affected
+    //  e.g. notes indicator in tabular display doesn't disappear when the unset 'notes' field is not published
+    //  => so the reason fo why the 'notes' field must be published as undefined
     // only considering first-level fields
     // see https://docs.meteor.com/api/meteor#Subscription-changed
     async addUndefined( instance, itemDoc, options={} ){
