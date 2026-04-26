@@ -7,6 +7,7 @@
     Release date: 
 
     - Improve rationale of addUndefined() transformation
+    - Improve constructor verbosity
 
 ### 2.2.0
 

@@ -184,8 +184,6 @@ export class acAccount {
             return instance;
         }
 
-        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.INSTANCE }, 'acAccount() instanciated for', this.name());
-
         // define the Mongo collection
         if( this.opts().collection() === 'users' ){
             //logger.debug( 'pwix:accounts-core using users collection' );
@@ -202,6 +200,8 @@ export class acAccount {
         // register this new instance
         AccountsCore._setInstance( this.name(), this );
 
+        // be verbose if configured for
+        logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.INSTANCE }, 'acAccount() instanciated for', this.name());
         if( this.name() === 'users' ) logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.USERS }, 'acAccount() instanciated for \'users\'' );
 
         return this;
