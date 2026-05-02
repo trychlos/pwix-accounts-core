@@ -1,6 +1,6 @@
 Package.describe({
     name: 'pwix:accounts-core',
-    version: '2.2.1-rc.0',
+    version: '2.2.1',
     summary: 'Accounts core management for Meteor',
     git: 'https://github.com/trychlos/pwix-accounts-core',
     documentation: 'README.md'
