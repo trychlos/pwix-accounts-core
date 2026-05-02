@@ -8,6 +8,7 @@
 
     - Improve rationale of addUndefined() transformation
     - Improve constructor verbosity
+    - Protect publication against HMR defects
 
 ### 2.2.0
 

@@ -38,7 +38,11 @@ Meteor.publish( AccountsCore.C.pub.listAll.name, async function( instanceName, o
             if( !initializing ){
                 const transformed = await AccountsCore.s.applyPublishTransforms( AccountsCore.C.pub.listAll.name, acInstance, newItem, opts, self.userId );
                 //if( newItem._id === 'KkpHFA8JcL8hWi6Cn' ) logger.debug( 'changed transformed', transformed );
-                self.changed( acInstance.opts().collection(), newItem._id, transformed );
+                try {
+                    self.changed( acInstance.opts().collection(), newItem._id, transformed );
+                } catch( e ){
+                    // ignore
+                }
             }
         },
         removed: async function( oldItem ){
