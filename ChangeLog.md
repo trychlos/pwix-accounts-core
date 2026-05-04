@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - acPreferredLabel component gets a guard against no-more-existing users
 
 ### 2.2.1
 

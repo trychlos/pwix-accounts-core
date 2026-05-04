@@ -39,7 +39,11 @@ Template.acPreferredLabel.onCreated( function(){
                 const acInstance = AccountsCore.getInstance( instanceName );
                 check( acInstance, AccountsCore.Account );
                 acInstance.preferredLabel( userId ).then(( res ) => {
-                    self.APP.preferredLabel.set( res.label );
+                    if( res ){
+                        self.APP.preferredLabel.set( res.label );
+                    } else {
+                        logger.warning( 'userId not found', userId );
+                    }
                 });
             }
         }
