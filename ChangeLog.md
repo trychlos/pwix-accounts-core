@@ -2,9 +2,9 @@
 
 ## ChangeLog
 
-### 2.2.2-rc.0
+### 2.2.2
 
-    Release date: 
+    Release date: 2026- 5-10
 
     - acPreferredLabel component gets a guard against no-more-existing users
 
@@ -93,4 +93,4 @@
 
 ---
 P. Wieser
-- Last updated on 2026, May. 2nd
+- Last updated on 2026, May. 10th
