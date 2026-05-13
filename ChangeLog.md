@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - Protect preferredLabel() against null user
 
 ### 2.2.2
 

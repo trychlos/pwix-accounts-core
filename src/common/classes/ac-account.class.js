@@ -429,20 +429,22 @@ export class acAccount {
      */
     async preferredLabel( user, preferred=null ){
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.FUNCTIONS }, 'acAccount.preferredLabel()', arguments );
-        check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: Match.NonEmptyString })));
-        let result = this._preferredLabelInitialResult( user, preferred );
-        if( result ){
-            // if a user identifier is provided, returns a Promise which resolves to the updated result object
-            if( _.isString( user )){
-                result = await this._preferredLabelById( user, preferred || this.opts().preferredLabel(), result );
-                //logger.debug( '_preferredLabelById', result );
-                return result;
-            }
-            // else expects a user document
-            if( _.isString( user._id )){
-                result = await this._preferredLabelByDoc( user, preferred || this.opts().preferredLabel(), result );
-                //logger.debug( '_preferredLabelByDoc', result );
-                return result;
+        if( user ){
+            check( user, Match.OneOf( Match.NonEmptyString, Match.ObjectIncluding({ _id: Match.NonEmptyString })));
+            let result = this._preferredLabelInitialResult( user, preferred );
+            if( result ){
+                // if a user identifier is provided, returns a Promise which resolves to the updated result object
+                if( _.isString( user )){
+                    result = await this._preferredLabelById( user, preferred || this.opts().preferredLabel(), result );
+                    //logger.debug( '_preferredLabelById', result );
+                    return result;
+                }
+                // else expects a user document
+                if( _.isString( user._id )){
+                    result = await this._preferredLabelByDoc( user, preferred || this.opts().preferredLabel(), result );
+                    //logger.debug( '_preferredLabelByDoc', result );
+                    return result;
+                }
             }
         }
         logger.error( 'AccountsCore.preferredLabel() unable to compute a suitable value' );
