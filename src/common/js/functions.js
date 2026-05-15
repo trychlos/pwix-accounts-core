@@ -86,7 +86,7 @@ AccountsCore.areSame = function( userA, userB ){
 AccountsCore.createAccount = async function( instance, userDoc, requesterId ){
     check( instance, Match.OneOf( Match.NonEmptyString, AccountsCore.Account ));
     check( userDoc, Object );
-    logger.debug( 'createAccount()', arguments );
+    //logger.debug( 'createAccount()', arguments );
     // get AccountsCore.Account instance
     let acInstance = instance;
     if( _.isString( acInstance )){

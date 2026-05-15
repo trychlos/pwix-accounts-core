@@ -47,7 +47,7 @@ Meteor.methods({
     async 'pwix.AccountsCore.m.createAccount'( instanceName, userDoc, requesterId ){
         check( instanceName, Match.NonEmptyString );
         check( userDoc, Object );
-        check( requesterId, Match.NonEmptyStringject );
+        check( requesterId, Match.NonEmptyString );
         try {
             return await AccountsCore.s.createAccount( instanceName, userDoc, requesterId );
         } catch( e ){
