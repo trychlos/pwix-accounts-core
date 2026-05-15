@@ -1,0 +1,12 @@
+<template name="ac_accounts_select">
+    <div class="ac-accounts-select">
+
+        {{#each it in itemsList }}
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="{{ itId it }}" id="{{ itId it }}" {{ itSelected it }} />
+                <label class="form-check-label" for="{{ itFor it }}">{{ itLabel it }}</label>
+            </div>
+        {{/each}}
+
+    </div>
+</template>

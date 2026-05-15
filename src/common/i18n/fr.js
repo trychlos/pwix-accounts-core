@@ -17,6 +17,10 @@ AccountsCore.i18n = {
                 username_exists: 'Le nom d\'utilisateur existe déjà',
                 username_short: 'Le nom d\'utilisateur est trop court (mini=%s)'
             },
+            dialogs: {
+                accounts_select_dialog_title: 'Choisissez un ou plusieurs comptes utilisateur',
+                accounts_select_ph: 'Selectionnez les comptes souhaités'
+            },
             permissions: {
                 create_error: 'Impossible de créer le nouveau compte',
                 create_not_allowed: 'Vous n\'êtes pas autorisé à créer un nouveau compte dans la collection',

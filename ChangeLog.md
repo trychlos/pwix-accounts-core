@@ -2,11 +2,12 @@
 
 ## ChangeLog
 
-### 2.2.3-rc.0
+### 2.3.0-rc.0
 
     Release date: 
 
     - Protect preferredLabel() against null user
+    - Re-install runAccountsSelection() client function, thus bumping minor candidate version number
 
 ### 2.2.2
 

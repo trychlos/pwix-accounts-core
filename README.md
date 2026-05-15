@@ -482,6 +482,31 @@ The provided `args` argument MUST contain an `instance` key with an instance of 
 
 Available both on the client and the server.
 
+##### `AccountsCore.runAccountsSelection( selected<ReactiveVar>, opts<Object> )`
+
+Runs a modal dialog to let the user choose zero to many user accounts.
+
+Parameters are:
+
+- `selected`: a ReactiveVar which contains the array of initially selected accounts identifiers (`_id`)
+
+    This same ReactiveVar will contain the selection result when the dialog will be validated.
+
+- `opts`: an optional options object with following keys:
+
+    - `disabled`: whether the selection component should be disabled, defaulting to `false`
+    - `selectOptions`: additional configuration options for `multiple-select` selection component
+    - `instance`: the name of the accounts instance, defaulting to 'users'
+    - `select_ph`: the select component placeholder, defaulting to (localized) 'Select the desired accounts'
+    - `dialog_title`: the dialog title, defaulting to (localized) 'Select one or more user accounts'
+    - `$target`: a jQuery object which will receive the 'ah-accounts-select' event at the validation of the dialog
+
+The modal triggers an 'ac-accounts-select' event at validation time, with data as:
+
+- `selected`: an array of selected accounts identifiers.
+
+This function is available on client-side only.
+
 ##### `async AccountsCore.updateAccount( instance<Account|String>, userDoc<Object>, requesterId:<String>, opts<Object> ): <Boolean>`
 
 `opts` is an optional options object wich may contain:

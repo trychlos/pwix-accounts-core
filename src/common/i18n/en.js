@@ -17,6 +17,10 @@ AccountsCore.i18n = {
                 username_exists: 'Username is already in use',
                 username_short: 'Username is too short (min is %s)'
             },
+            dialogs: {
+                accounts_select_dialog_title: 'Select one or more user accounts',
+                accounts_select_ph: 'Select the desired accounts'
+            },
             permissions: {
                 create_error: 'Unable to create the new account',
                 create_not_allowed: 'You are not allowed to create a new account in the collection',
