@@ -192,7 +192,7 @@ AccountsCore.s = {
         if( acInstance.opts().collection() === 'users' ){
             userDoc = await Accounts.findUserByEmail( email, options );
         } else {
-            userDoc = await AccountsCore.s.byQuery({ 'emails.address': email }, options );
+            userDoc = await AccountsCore.s.byQuery( acInstance, { 'emails.address': email }, options );
         }
         userDoc = await AccountsCore.s.applyReadTransforms( 'byEmailAddress', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byEmailAddress( \''+email+'\' ):', userDoc );
@@ -279,7 +279,7 @@ AccountsCore.s = {
         if( acInstance.opts().collection() === 'users' ){
             userDoc = await Accounts.findUserByUsername( username, options );
         } else {
-            userDoc = await AccountsCore.s.byQuery({ username }, options ) || await AccountsCore.s.byQuery({ 'usernames.username': username }, options );
+            userDoc = await AccountsCore.s.byQuery( acInstance, { username }, options ) || await AccountsCore.s.byQuery({ 'usernames.username': username }, options );
         }
         userDoc = await AccountsCore.s.applyReadTransforms( 'byUsername', acInstance, userDoc, options );
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'byUsername( \''+username+'\' )', userDoc );

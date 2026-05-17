@@ -9,6 +9,7 @@
     - Protect preferredLabel() against null user
     - Re-install runAccountsSelection() client function, thus bumping minor candidate version number
     - Fix typo in 'pwix.AccountsCore.m.createAccount' method
+    - Fix AccountsCore.s.byQuery() calls with missing acInstance
 
 ### 2.2.2
 
