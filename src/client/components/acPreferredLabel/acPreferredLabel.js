@@ -23,7 +23,9 @@ Template.acPreferredLabel.onCreated( function(){
     const self = this;
 
     self.APP = {
-        preferredLabel: new ReactiveVar( null )
+        preferredLabel: new ReactiveVar( null ),
+        // warn only once when a userId is not found
+        warned: {}
     };
 
     // get the preferred label
@@ -42,7 +44,15 @@ Template.acPreferredLabel.onCreated( function(){
                     if( res ){
                         self.APP.preferredLabel.set( res.label );
                     } else {
-                        logger.warning( 'userId not found', userId );
+                        if( AccountsCore.configure().preferredLabelWarnsOnce ){
+                            AccountsCore._preferredLabelWarned = AccountsCore._preferredLabelWarned || {};
+                            if( !AccountsCore._preferredLabelWarned[userId] ){
+                                logger.warning( 'userId not found', userId );
+                                AccountsCore._preferredLabelWarned[userId] = true;
+                            }
+                        } else {
+                            logger.warning( 'userId not found', userId );
+                        }
                     }
                 });
             }

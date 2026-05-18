@@ -15,6 +15,7 @@ AccountsCore._conf = new ReactiveVar( _conf );
 
 AccountsCore._defaults = {
     autoUsers: true,
+    preferredLabelWarnsOnce: true,
     verbosity: AccountsCore.C.Verbose.CONFIGURE
 };
 
