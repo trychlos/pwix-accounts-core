@@ -35,6 +35,10 @@ AccountsCore.C = {
         listAll: {
             name: 'pwix.AccountsCore.p.listAll',
             permission: 'pwix.accounts_core.feat.list'
+        },
+        document: {
+            name: 'pwix.AccountsCore.p.document',
+            collection: 'pwix.accounts_core.c.document'
         }
     },
 

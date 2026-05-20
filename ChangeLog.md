@@ -11,6 +11,7 @@
     - Fix typo in 'pwix.AccountsCore.m.createAccount' method
     - Fix AccountsCore.s.byQuery() calls with missing acInstance
     - Define new 'preferredLabelWarnsOnce' configuration parameter, and honor it
+    - Define new 'pwix.AccountsCore.p.document' publication to publish user settings
 
 ### 2.2.2
 

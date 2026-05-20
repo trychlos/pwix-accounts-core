@@ -403,6 +403,10 @@ AccountsCore.s = {
             check( acInstance, AccountsCore.Account );
         }
         let res;
+        // in the case userDoc would be a partial document:
+        //  merge with the original one to always update a full user document
+        const itemDoc = await acInstance.collection().findOneAsync({ _id: userDoc._id });
+        userDoc = _.merge( {}, itemDoc, userDoc );
         try {
             // preUpdate server hook
             let fn = acInstance.opts().hooksServer_preUpdateFn();
@@ -427,6 +431,7 @@ AccountsCore.s = {
             res = { reason: e.error };
         }
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.SERVER }, 'updateAccount()', res );
+        //logger.debug( 'res', res );
         return res;
     },
 
