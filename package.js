@@ -32,6 +32,7 @@ function configure( api ){
     api.use( 'mongo' );
     api.use( 'pwix:i18n@1.5.0' );
     api.use( 'pwix:logger@1.0.0-rc' );
+    api.use( 'pwix:modal@2.0.0-rc' );
     api.use( 'pwix:options@2.1.0' );
     api.use( 'random' );
     api.use( 'reactive-var' );

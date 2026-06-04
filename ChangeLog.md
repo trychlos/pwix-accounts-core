@@ -6,7 +6,7 @@
 
     Release date: 
 
-    - 
+    - Add missing pwix:modal dependency
 
 ### 2.3.0
 
