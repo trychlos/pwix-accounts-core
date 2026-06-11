@@ -7,6 +7,7 @@
     Release date: 
 
     - Add missing pwix:modal dependency
+    - Fix byQuery() server function calling arguments
 
 ### 2.3.0
 
