@@ -137,28 +137,34 @@ But, for compatibility and simplicity reasons, doing nothing in your application
         - `createAccountFn`
         - `createAccountArgs`
 
+            Return value must be an `Object` with either `_id` if successful, or `reason` or `reason_i18n` in case of an error.
+
         - `deleteAccountFn`
         - `deleteAccountArgs`
+
+            Return value must be an `Object` with either `count` if successful, or `reason` or `reason_i18n` in case of an error.
 
         - `updateAccountFn`
         - `updateAccountArgs`
 
-            These functions respectively creates, updates or deletes a user account.
+            Return value must be an `Object` with either `count` if successful, or `reason` or `reason_i18n` in case of an error.
 
-            Arguments can be provided as an object, or a function which returns such an object.
+        These functions respectively creates, updates or deletes a user account.
 
-            Expected prototype is `async accountFn( userDoc<Object|String>, options<Object> [, accountArgs<Any> ] ): <Object>`.
+        Arguments can be provided as an object, or a function which returns such an object.
 
-            The returned object should be the same than those of the common entry point function below.
+        Expected prototype is `async accountFn( userDoc<Object|String>, options<Object> [, accountArgs<Any> ] ): <Object>`.
 
-            The `options` object may contain following keys:
+        The returned object should be the same than those of the common entry point function below.
 
-            - `instance`: the AccountsCore.Account instance, defaulting to 'users'
-            - `userId`: the user identifier responsible of the request (none of them can be anonymous unless maybe the createAccountFn).
+        The `options` object may contain following keys:
 
-            When passed to `updateAccountFn()`, the `options` object may also contain:
+        - `instance`: the AccountsCore.Account instance, defaulting to 'users'
+        - `userId`: the user identifier responsible of the request (none of them can be anonymous unless maybe the createAccountFn).
 
-            - `orig`: the original document.
+        When passed to `updateAccountFn()`, the `options` object may also contain:
+
+        - `orig`: the original document.
 
         All `hooksCommon` functions which are provided must be callable both from client and server sides.
 

@@ -9,6 +9,7 @@
     - Add missing pwix:modal dependency
     - Fix byQuery() server function calling arguments
     - Introduce AccountsCore.C.Users constant to replace hardcoded 'users' collection
+    - Fix common and server hooks function calls
 
 ### 2.3.0
 

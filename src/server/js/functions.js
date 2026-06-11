@@ -308,7 +308,7 @@ AccountsCore.s = {
         let res;
         try {
             // preCreate server hook
-            let fn = acInstance.opts().hooksServer_preCreateFn();
+            let fn = acInstance.opts()['hooksServer.preCreateFn']();
             if( fn ){
                 await fn( userDoc, requesterId );
             }
@@ -319,7 +319,7 @@ AccountsCore.s = {
                 res = { _id: _id };
             }
             // postCreate server hook
-            fn = acInstance.opts().hooksServer_postCreateFn();
+            fn = acInstance.opts()['hooksServer.postCreateFn']();
             if( fn ){
                 await fn( userDoc, requesterId );
             }
@@ -352,7 +352,7 @@ AccountsCore.s = {
         let res;
         try {
             // preDelete server hook
-            let fn = acInstance.opts().hooksServer_preDeleteFn();
+            let fn = acInstance.opts()['hooksServer.preDeleteFn']();
             if( fn ){
                 await fn( userDoc, requesterId );
             }
@@ -365,7 +365,7 @@ AccountsCore.s = {
             const count = await acInstance.collection().removeAsync({ _id: id });
             res = { count };
             // postDelete server hook
-            fn = acInstance.opts().hooksServer_postDeleteFn();
+            fn = acInstance.opts()['hooksServer.postDeleteFn']();
             if( fn ){
                 await fn( userDoc, requesterId );
             }
@@ -409,7 +409,7 @@ AccountsCore.s = {
         userDoc = _.merge( {}, itemDoc, userDoc );
         try {
             // preUpdate server hook
-            let fn = acInstance.opts().hooksServer_preUpdateFn();
+            let fn = acInstance.opts()['hooksServer.preUpdateFn']();
             if( fn ){
                 await fn( userDoc, requesterId, opts );
             }
@@ -422,7 +422,7 @@ AccountsCore.s = {
             userDoc._id = _id;
             res = { count };
             // postUpdate server hook
-            fn = acInstance.opts().hooksServer_postUpdateFn();
+            fn = acInstance.opts()['hooksServer.postUpdateFn']();
             if( fn ){
                 await fn( userDoc, requesterId, opts );
             }

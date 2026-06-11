@@ -96,10 +96,10 @@ AccountsCore.createAccount = async function( instance, userDoc, requesterId ){
         return { reason_i18n: 'permissions.create_not_allowed' };
     }
     // honors createAccountFn() common hook if defined
-    const fn = acInstance.opts().hooksCommon_createAccountFn();
+    const fn = acInstance.opts()['hooksCommon.createAccountFn']();
     if( fn ){
         try {
-            return await fn( userDoc, { instance: acInstance, userId: requesterId }, instance.opts().hooksCommon_createAccountArgs());
+            return await fn( userDoc, { instance: acInstance, userId: requesterId }, instance.opts()['hooksCommon.createAccountArgs']());
         } catch( e ){
             logger.error( e );
             return { reason: e.error };
@@ -107,7 +107,7 @@ AccountsCore.createAccount = async function( instance, userDoc, requesterId ){
     }
     // rely on AccountsBase for 'users' collection
     //  see https://docs.meteor.com/api/accounts.html#Accounts-createAccount
-    //  NB: contrarily to what say the doc, the actual code doesn't return anything
+    //  NB: contrarily to what the doc says, the actual code doesn't return anything
     //  see https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_client.js#L105
     //  NB: do not auto connect here - this must be handled by the caller
     if( acInstance.name() === AccountsCore.C.Users ){
@@ -184,10 +184,10 @@ AccountsCore.deleteAccount = async function( instance, user, requesterId ){
     }
     let res;
     // honors deleteAccountFn() common hook if defined
-    const fn = instance.opts().hooksCommon_deleteAccountFn();
+    const fn = instance.opts()['hooksCommon.deleteAccountFn']();
     if( fn ){
         try {
-            return await fn( user, { instance: acInstance, userId: requesterId }, instance.opts().hooksCommon_deleteAccountArgs());
+            return await fn( user, { instance: acInstance, userId: requesterId }, instance.opts()['hooksCommon.deleteAccountArgs']());
         } catch( e ){
             logger.error( e );
             return { reason: e.error };
@@ -289,12 +289,12 @@ AccountsCore.updateAccount = async function( instance, userDoc, requesterId, opt
     if( !await AccountsCore.isAllowed( 'pwix.accounts_core.feat.update', requesterId, { instance: acInstance, id: userDoc._id || userDoc })){
         return { reason_i18n: 'permissions.update_not_allowed' };
     }
-    const fn = instance.opts().hooksCommon_updateAccountFn();
+    const fn = instance.opts()['hooksCommon.updateAccountFn']();
     if( fn ){
         try {
             opts.instance = acInstance;
             opts.userId = requesterId;
-            return await fn( userDoc, opts, instance.opts().hooksCommon_updateAccountArgs());
+            return await fn( userDoc, opts, instance.opts()['hooksCommon.updateAccountArgs']());
         } catch( e ){
             logger.error( e );
             return { reason: e.error };
