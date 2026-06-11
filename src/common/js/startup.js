@@ -4,7 +4,7 @@
 
 // at startup, instanciates a default acAccount instance for the standard 'users' collection
 Meteor.startup(() => {
-    if( AccountsCore.configure().autoUsers && !AccountsCore.getInstance( 'users' )){
-        new AccountsCore.Account({ name: 'users' });
+    if( AccountsCore.configure().autoUsers && !AccountsCore.getInstance( AccountsCore.C.Users )){
+        new AccountsCore.Account({ name: AccountsCore.C.Users });
     }
 });

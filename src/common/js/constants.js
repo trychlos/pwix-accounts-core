@@ -42,6 +42,9 @@ AccountsCore.C = {
         }
     },
 
+    // the name of the standard Meteor 'users' collection
+    Users: 'users',
+
     // verbosity levels
     Verbose: {
         NONE:           0,

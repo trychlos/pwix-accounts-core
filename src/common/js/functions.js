@@ -16,8 +16,6 @@ AccountsCore._instances = {
     data: {}
 };
 
-const USERS = acOptions._defaults.name;
-
 const logger = Logger.get();
 
 // Setter
@@ -112,7 +110,7 @@ AccountsCore.createAccount = async function( instance, userDoc, requesterId ){
     //  NB: contrarily to what say the doc, the actual code doesn't return anything
     //  see https://github.com/meteor/meteor/blob/devel/packages/accounts-password/password_client.js#L105
     //  NB: do not auto connect here - this must be handled by the caller
-    if( acInstance.name() === USERS ){
+    if( acInstance.name() === AccountsCore.C.Users ){
         const createOpts = {};
         // have a username ?
         if( userDoc.username ){

@@ -189,7 +189,7 @@ AccountsCore.s = {
             check( acInstance, AccountsCore.Account );
         }
         let userDoc = null;
-        if( acInstance.opts().collection() === 'users' ){
+        if( acInstance.opts().collection() === AccountsCore.C.Users ){
             userDoc = await Accounts.findUserByEmail( email, options );
         } else {
             userDoc = await AccountsCore.s.byQuery( acInstance, { 'emails.address': email }, options );
@@ -276,7 +276,7 @@ AccountsCore.s = {
             check( acInstance, AccountsCore.Account );
         }
         let userDoc = null;
-        if( acInstance.opts().collection() === 'users' ){
+        if( acInstance.opts().collection() === AccountsCore.C.Users ){
             userDoc = await Accounts.findUserByUsername( username, options );
         } else {
             userDoc = await AccountsCore.s.byQuery( acInstance, { username }, options ) || await AccountsCore.s.byQuery( acInstance, { 'usernames.username': username }, options );

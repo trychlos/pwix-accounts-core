@@ -185,9 +185,9 @@ export class acAccount {
         }
 
         // define the Mongo collection
-        if( this.opts().collection() === 'users' ){
+        if( this.opts().collection() === AccountsCore.C.Users ){
             //logger.debug( 'pwix:accounts-core using users collection' );
-            this.#collection = Meteor.users;
+            this.#collection = Meteor[AccountsCore.C.Users];
         } else {
             //logger.debug( 'pwix:accounts-core defining collection', this.opts().collection());
             this.#collection = new Mongo.Collection( this.opts().collection());
@@ -202,7 +202,7 @@ export class acAccount {
 
         // be verbose if configured for
         logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.INSTANCE }, 'acAccount() instanciated for', this.name());
-        if( this.name() === 'users' ) logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.USERS }, 'acAccount() instanciated for \'users\'' );
+        if( this.name() === AccountsCore.C.Users ) logger.verbose({ verbosity: AccountsCore.configure().verbosity, against: AccountsCore.C.Verbose.USERS }, 'acAccount() instanciated for \''+AccountsCore.C.Users+'\'' );
 
         return this;
     }

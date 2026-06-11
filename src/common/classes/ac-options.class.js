@@ -46,7 +46,7 @@ export class acOptions extends Options.Base {
         minEmailAddressesCount: 1,
         maxUsernamesCount: 0,
         minUsernamesCount: 0,
-        name: 'users',  // instance name
+        name: AccountsCore.C.Users,  // instance name
         passwordLength: 10,
         passwordStrength: AccountsCore.C.Password.STRONG,
         preferredLabel: AccountsCore.C.PreferredLabel.EMAIL_ADDRESS,

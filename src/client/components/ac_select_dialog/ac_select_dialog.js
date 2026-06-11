@@ -51,7 +51,7 @@ Template.ac_select_dialog.onCreated( function(){
 
     // subscribe to the accounts collection
     self.autorun(() => {
-        const name = Template.currentData().instance || 'users';
+        const name = Template.currentData().instance || AccountsCore.C.Users;
         const acInstance = AccountsCore.getInstance( name );
         if( acInstance ){
             self.AH.handle.set( self.subscribe( 'pwix.AccountsCore.p.listAll', name ));
@@ -64,7 +64,7 @@ Template.ac_select_dialog.onCreated( function(){
     self.autorun(() => {
         const handle = self.AH.handle.get();
         if( handle && handle.ready()){
-            const name = Template.currentData().instance || 'users';
+            const name = Template.currentData().instance || AccountsCore.C.Users;
             const acInstance = AccountsCore.getInstance( name );
             if( acInstance ){
                 const cmp = function( a, b ){

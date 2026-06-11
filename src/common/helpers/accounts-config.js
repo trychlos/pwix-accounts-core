@@ -43,7 +43,7 @@ export const AccountsConfig = {
         argon2MemoryCost: 19456,
         argon2Parallelism: 1,
         //defaultFieldSelector: // leave undefined as hardcoded defaults are not documented
-        collection: 'users',
+        collection: AccountsCore.C.Users,
         loginTokenExpirationHours: 1,
         tokenSequenceLength: 6,
         clientStorage: 'session'

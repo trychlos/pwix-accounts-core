@@ -34,7 +34,7 @@ AccountsCore.runAccountsSelection = function( selected, opts={} ){
             selected: selected,
             disabled: opts.disabled === true,
             selectOptions: opts.selectOptions,
-            instance: opts.instance || 'users',
+            instance: opts.instance || AccountsCore.C.Users,
             select_ph: opts.select_ph,
             dialog_title: opts.dialog_title,
             $target: opts.$target,
