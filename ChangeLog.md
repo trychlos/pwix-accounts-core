@@ -2,9 +2,9 @@
 
 ## ChangeLog
 
-### 2.3.1-rc.0
+### 2.3.1
 
-    Release date: 
+    Release date: 2026- 6-30
 
     - Add missing pwix:modal dependency
     - Fix byQuery() server function calling arguments
@@ -113,4 +113,4 @@
 
 ---
 P. Wieser
-- Last updated on 2026, May. 31st
+- Last updated on 2026, Jun. 30th
